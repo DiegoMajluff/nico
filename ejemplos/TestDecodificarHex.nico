@@ -1,0 +1,26 @@
+PROGRAMA DecodificarHex
+    VARIABLE ENTERA SIN SIGNO $empaquetado = 0x48656C6C6F  // "Hello"
+    VARIABLE TEXTO EXTENSO $resultado = ""
+    VARIABLE TEXTO $char = ""
+    VARIABLE ENTERA $byte, $i, $temp
+BLOQUE PRINCIPAL
+    ASIGNAR EN $temp = $empaquetado
+    
+    // Extraer 5 bytes (Hello = 5 caracteres)
+    PARA($i DESDE 0 HASTA 4) HACER
+        // Obtener byte menos significativo (mask con 0xFF = 255)
+        CALCULAR EN $byte = BITY($temp, 255)
+        
+        // Convertir byte a carácter ASCII
+        CARACTERATEXTO($byte, $char)
+        
+        // Concatenar al resultado
+        CONCATENARTEXTO($resultado, $char)
+        
+        // Desplazar para procesar el siguiente byte
+        CALCULAR EN $temp = DESPLAZARDERECHA($temp, 8)
+    FIN PARA
+    
+    ESCRIBIR("\nTexto decodificado: $resultado\n") SALTO
+FIN PRINCIPAL
+FINAL

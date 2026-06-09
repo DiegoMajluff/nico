@@ -1,0 +1,39 @@
+PROGRAMA TestLeerConPrompt
+
+    VARIABLE ENTERA $numero = 0
+    VARIABLE TEXTO $nombre = ""
+    VARIABLE TEXTO $letra = ""
+    
+BLOQUE PRINCIPAL
+    LIMPIARPANTALLA
+
+    ESCRIBIR("Ingrese su nombre: ")
+    LEER($nombre)
+    ESCRIBIR("Ingrese su número: ")
+    LEER($numero)
+
+// 📝 NOTA SOBRE CARACTERES EXTENDIDOS (ñ, á, é, ü, etc.)
+//
+// En Windows (y Linux moderno), la consola utiliza codificación UTF-8 por defecto.
+// En UTF-8, caracteres como 'ñ' ocupan 2 bytes (ej: 0xC3 0xB1), no 1 byte ASCII.
+// 
+// ❌ VARIABLE CARACTER está diseñada internamente para almacenar 1 solo byte.
+//    Si usás LEERCARACTER(), el intérprete captura únicamente el primer byte de la
+//    secuencia UTF-8 y descarta el segundo, generando símbolos incorrectos (Ã, ).
+// 
+// ✅ SOLUCIÓN EN NICO: Usar VARIABLE TEXTO + LEER() para cualquier entrada que
+//    pueda contener tildes, eñes o símbolos internacionales. TEXTO maneja cadenas
+//    completas respetando la secuencia UTF-8, garantizando interoperabilidad
+//    cross-platform sin necesidad de parches en el core C.
+// 
+// 📖 Diseño intencional v1.0.1: CARACTER prioriza eficiencia y simplicidad en
+//    operaciones de bajo nivel (teclas de control, flags, polling de hardware).
+//    Para input humano o texto visible, TEXTO es la opción segura y recomendada.
+
+    ESCRIBIR("Ingrese una letra: ") 
+    LEER($letra)
+
+    ESCRIBIR("Hola $nombre, tu número es [$numero + 10], letra: $letra\n") SALTO
+
+FIN PRINCIPAL
+FINAL

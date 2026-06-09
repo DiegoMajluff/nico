@@ -1,0 +1,32 @@
+PROGRAMA prueba_declaracion_multiple
+    
+    //Declaración múltiple con y sin inicialización
+    VARIABLE ENTERA $a = 10, $b, $c = -5, $d
+    VARIABLE DECIMAL $x = 3.14, $y, $z = 0.0
+    VARIABLE TEXTO $msg1 = "Hola", $msg2, $msg3 = "Mundo"
+    VARIABLE CARACTER $let1 = 'A', $let2, $let3 = 'Z'
+
+BLOQUE PRINCIPAL
+    //Verificar valores por defecto
+    ESCRIBIR("") SALTO
+    SI($b IGUAL 0) ENTONCES
+        ESCRIBIR("✅ $b inicializada en 0 por defecto") SALTO
+    FIN SI
+    
+    SI($y IGUAL 0.0) ENTONCES
+        ESCRIBIR("✅ $y decimal inicializada en 0.0") SALTO
+    FIN SI
+    
+    //Asignación posterior funciona igual
+    ASIGNAR EN $b = 90
+    COPIARTEXTO($msg2, "Nico")    
+
+    ESCRIBIR("Valores finales: ")
+    ESCRIBIR("a = $a, b = $b, c = $c") SALTO
+    ESCRIBIR("msg1 = $msg1, msg2 = $msg2, msg3 = $msg3") SALTO
+    ESCRIBIR("") SALTO
+    //Error esperado: $ duplicada 
+    //VARIABLE ENTERA $a = 1  // Descomentar para probar error 
+    
+FIN PRINCIPAL
+FINAL

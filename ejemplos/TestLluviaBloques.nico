@@ -1,0 +1,119 @@
+PROGRAMA lluvia_bloques_v5
+
+BLOQUE PRINCIPAL
+    // ✅ Una variable por línea, sin $ en declaración 
+    VARIABLE ENTERA $ancho
+    VARIABLE ENTERA $alto
+    VARIABLE ENTERA $px
+    VARIABLE ENTERA $py
+    VARIABLE ENTERA $fin
+    VARIABLE ENTERA $score
+    VARIABLE ENTERA $ex
+    VARIABLE ENTERA $ey
+    VARIABLE ENTERA $ey_prev
+    VARIABLE ENTERA $vel
+    VARIABLE ENTERA $lim_inf
+    VARIABLE ENTERA $lim_izq
+    VARIABLE ENTERA $lim_der
+    VARIABLE ENTERA $izq
+    VARIABLE ENTERA $der
+    VARIABLE ENTERA $tecla
+
+    // 1. Inicialización
+    ANCHOTERMINAL($ancho)
+    ALTOTERMINAL($alto)
+    CALCULAR EN $px = $ancho / 2
+    CALCULAR EN $py = $alto - 4
+    CALCULAR EN $ex = $ancho / 2
+    CALCULAR EN $ey = 2
+    CALCULAR EN $ey_prev = 2
+    CALCULAR EN $vel = 1
+    CALCULAR EN $score = 0
+    CALCULAR EN $fin = 0
+    CALCULAR EN $lim_inf = $alto - 2
+    CALCULAR EN $lim_izq = 2
+    CALCULAR EN $lim_der = $ancho - 2
+
+    // 2. Setup terminal 
+    LIMPIARPANTALLA
+    OCULTARCURSOR
+    CURSOR(1, 1) 
+    MOSTRAR("Score: 0 | A=Izq  D=Der  Q=Salir") SALTO
+
+    // 3. Loop principal 
+    MIENTRAS ($fin IGUAL 0) HACER
+        CALCULAR EN $ey_prev = $ey
+        CALCULAR EN $ey = $ey + $vel
+
+        // Input ASCII (funciona en Linux raw/cbreak)
+        TECLAMANTENIDA(97, $izq)   // 'a'
+        TECLAMANTENIDA(100, $der)  // 'd'
+        TECLAMANTENIDA(113, $tecla) // 'q'
+
+        SI ($izq IGUAL 1) ENTONCES 
+            CALCULAR EN $px = $px - 1 
+        FIN SI
+        SI ($der IGUAL 1) ENTONCES 
+            CALCULAR EN $px = $px + 1 
+        FIN SI
+
+        // Clamps estrictos (1-based, evita CURSOR inválido)
+       
+        SI ($ey_prev MENOR 1) ENTONCES 
+            CALCULAR EN $ey_prev = 1 
+        FIN SI
+        SI ($ey_prev MAYOR $alto) ENTONCES 
+            CALCULAR EN $ey_prev = $alto 
+        FIN SI
+        SI ($ex MENOR 1) ENTONCES 
+            CALCULAR EN $ex = 1 
+        FIN SI
+        SI ($ex MAYOR $ancho) ENTONCES 
+            CALCULAR EN $ex = $ancho 
+        FIN SI
+        SI ($px MENOR 1) ENTONCES 
+            CALCULAR EN $px = 1 
+        FIN SI
+        SI ($px MAYOR $ancho) ENTONCES 
+            CALCULAR EN $px = $ancho 
+        FIN SI
+
+        // 🎲 Respawn aleatorio al tocar fondo
+        SI ($ey MAYOR $lim_inf) ENTONCES
+            CALCULAR EN $ey = 2
+            // ✅ Posición X aleatoria entre límites válidos
+            CALCULAR EN $ex = ALEATORIO(ENTERO, $lim_izq, $lim_der)
+            CALCULAR EN $score = $score + 1
+            CURSOR(1, 1) 
+            MOSTRAR("Score: $score")
+        FIN SI 
+
+        // Colisión exacta 
+        SI (($ey IGUAL $py) Y ($ex IGUAL $px)) ENTONCES
+            CALCULAR EN $fin = 1
+        FIN SI
+
+        // Salida por Q */
+        SI ($tecla IGUAL 1) ENTONCES 
+            CALCULAR EN $fin = 1 
+        FIN SI
+
+        // Render (caracteres ASCII de 1 celda para evitar desalineación)
+        CURSOR($ey_prev, $ex) 
+        MOSTRAR("   ")
+        CURSOR($py, $px)      
+        MOSTRAR(" # ")
+        CURSOR($ey, $ex)      
+        MOSTRAR(" * ")
+        
+        ESPERAR(33, MILISEGUNDOS) // Número directo
+    FIN MIENTRAS
+
+    // 🧹 Limpieza ROBUSTA
+    CURSOR($alto, 1)
+    MOSTRARCURSOR
+    LIMPIARPANTALLA
+    CURSOR(1, 1)
+    MOSTRAR("Fin. Score final: $score") SALTO
+FIN PRINCIPAL
+FINAL

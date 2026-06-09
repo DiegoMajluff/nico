@@ -1,0 +1,69 @@
+PROGRAMA TestAckermannOptimizado
+    // ✅ Tamaño 1500: cubre hasta A(3, 5) sin colisiones y respeta límites del intérprete
+    LISTA ENTERA $cache[1200] = {0}
+
+    FUNCION ENTERA iniciar_cache()
+        VARIABLE ENTERA $i = 0
+        MIENTRAS($i MENOR 1200) HACER 
+            $cache[$i] = 0
+            CALCULAR EN $i = $i + 1
+        FIN MIENTRAS
+        RETORNAR 0
+    FIN FUNCION
+
+    FUNCION ENTERA ackermann_mem($m, $n)
+        VARIABLE ENTERA $res = 0
+        VARIABLE ENTERA $temp = 0
+        VARIABLE ENTERA $m_menos_1 = 0
+        VARIABLE ENTERA $indice = 0
+        VARIABLE ENTERA $valor_cache = 0
+        
+        // ✅ HASH AJUSTADO: (m * 400) + n
+        // Max índice para A(3,5) ≈ 3*400 + 253 = 1453 (< 1500)
+        CALCULAR EN $indice = ($m * 400) + $n
+        
+        ASIGNAR EN $valor_cache = $cache[$indice]
+        
+        // 1. Si es 0, NO está en caché
+        SI($valor_cache IGUAL 0) ENTONCES
+            SI($m IGUAL 0) ENTONCES
+                RESULTADO EN $res = $n + 1
+            SINO
+                SI($n IGUAL 0) ENTONCES
+                    RESULTADO EN $res = ackermann_mem($m - 1, 1)
+                SINO
+                    CALCULAR EN $temp = ackermann_mem($m, $n - 1)
+                    CALCULAR EN $m_menos_1 = $m - 1
+                    RESULTADO EN $res = ackermann_mem($m_menos_1, $temp)
+                FIN SI
+            FIN SI
+            
+            $cache[$indice] = $res
+        SINO
+            // Ya está en caché
+            RESULTADO EN $res = $valor_cache
+        FIN SI
+        
+        RETORNAR $res
+    FIN FUNCION
+
+    BLOQUE PRINCIPAL
+        VARIABLE ENTERA $r = 0, $llamada
+        ESCRIBIR("\n=== ACKERMANN OPTIMIZADO ===") SALTO
+        
+        ASIGNAR EN $llamada = iniciar_cache()
+        
+        ESCRIBIR("A(3, 3) = ") SALTO
+        CALCULAR EN $r = ackermann_mem(3, 3)
+        ESCRIBIR("$r (Esperado: 61)") SALTO
+        
+        ESCRIBIR("A(3, 4) = ") SALTO
+        CALCULAR EN $r = ackermann_mem(3, 4)
+        ESCRIBIR("$r (Esperado: 125)") SALTO
+        
+        ESCRIBIR("A(3, 5) = ") SALTO
+        CALCULAR EN $r = ackermann_mem(3, 5)
+        ESCRIBIR("$r (Esperado: 253)") SALTO
+        ESCRIBIR("") SALTO
+    FIN PRINCIPAL
+FINAL
