@@ -41,8 +41,9 @@ gcc -o nico.exe %CFILES% ^
     -L"C:/msys64/mingw64/lib" ^
     -DWIN32_LEAN_AND_MEAN ^
     -include src/win_compat.h ^
-    -I. 2>compile_errors.txt
-
+    -I. ^
+    -Wl,--stack,16777216 2>compile_errors.txt
+    
 if %errorlevel% neq 0 (
     echo [ERROR] Compilacion fallida. Detalles:
     type compile_errors.txt

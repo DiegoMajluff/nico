@@ -259,7 +259,7 @@ typedef struct {
 } VariableLocal;
 
 #define MAX_VARS_LOCALES 256
-#define MAX_SCOPES 10000
+#define MAX_SCOPES 20000
 
 typedef struct {
     VariableLocal variables[MAX_VARS_LOCALES];

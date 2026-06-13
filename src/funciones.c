@@ -31,6 +31,27 @@ int profundidad_funcion = 0;
 
 PilaRetorno pila_retorno = {.tope = -1};
 
+// GESTIÓN DE PILA DE RETORNO (Para recursión anidada)
+void push_retorno(void) {
+    if (pila_retorno.tope < MAX_PROFUNDIDAD_FUNCION) {
+        // Guardamos el estado ACTUAL antes de que la nueva llamada lo sobrescriba
+        pila_retorno.valores[pila_retorno.tope] = valor_retorno_funcion;
+        pila_retorno.hay_retorno[pila_retorno.tope] = hay_valor_retorno;
+        pila_retorno.tope++;
+    } else {
+        fprintf(stderr, "\n[ERROR FATAL] Desbordamiento de pila de retorno (Max: %d).\n", MAX_PROFUNDIDAD_FUNCION);
+    }
+}
+
+void pop_retorno(void) {
+    if (pila_retorno.tope > 0) {
+        pila_retorno.tope--;
+        // Restauramos el estado de la llamada que nos invocó
+        valor_retorno_funcion = pila_retorno.valores[pila_retorno.tope];
+        hay_valor_retorno = pila_retorno.hay_retorno[pila_retorno.tope];
+    }
+}
+
 // PARSEAR PARAMETROS DE FUNCION
 int parsear_parametros_funcion(const char *linea, char params[][MAX_NOMBRE], int max_params) {
     int num_params = 0;
@@ -210,7 +231,7 @@ extern ScopeLocal scopes_locales[];
 double llamar_funcion(const char *nombre_func, char *args[], int num_args, int *exito) {
     *exito = 0;
     int func_idx = buscar_funcion_info(nombre_func);
-    if (num_args != funciones_registradas[func_idx].num_params) {
+    if (func_idx < 0 || num_args != funciones_registradas[func_idx].num_params) {
         return 0;
     }
 
@@ -220,15 +241,17 @@ double llamar_funcion(const char *nombre_func, char *args[], int num_args, int *
         valores_evaluados[k] = evaluar_expresion_completa(args[k], &ex_arg);
     }
 
-    int prev_scope = scope_actual;
     int prev_en_funcion = en_funcion;
-    
     en_funcion = 1;
+    
+    // 1. GUARDAR el estado de retorno ANTERIOR en la pila
+    push_retorno();
     
     hay_valor_retorno = 0;
     valor_retorno_funcion = 0;
 
     if (crear_scope_local(func_idx) < 0) { 
+        pop_retorno(); // Restaurar en caso de error
         en_funcion = prev_en_funcion; 
         return 0; 
     }
@@ -257,12 +280,19 @@ double llamar_funcion(const char *nombre_func, char *args[], int num_args, int *
 
     ejecutar_bloque(&ctx_func);
 
+    double resultado = hay_valor_retorno ? valor_retorno_funcion : 0.0;
+    
     eliminar_scope_local();
-    scope_actual = prev_scope;
+    // ¡IMPORTANTE! NO pongas "scope_actual = prev_scope;" aquí. 
+    // eliminar_scope_local() ya hace el decremento correctamente.
+    
     en_funcion = prev_en_funcion;
     
+    // 2. RESTAURAR el estado de retorno ANTERIOR de la pila
+    pop_retorno();
+    
     *exito = 1;
-    return hay_valor_retorno ? valor_retorno_funcion : 0.0;
+    return resultado;
 }
 
 // FUNCIONES ALEATORIAS

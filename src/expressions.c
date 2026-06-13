@@ -1701,53 +1701,61 @@ double evaluar_expresion_completa(const char *expr, int *exito) {
             return 0;
         }
     }
-    
     resultado *= signo;
     
-    // Usar el bucle único recursivo
+    // BUCLE DE EVALUACIÓN CON PRECEDENCIA CORRECTA
     while (*ptr) {
         while (*ptr == ' ') ptr++;
         if (!*ptr) break;
         
         char op = *ptr;
-        if (op != '+' && op != '-' && op != '*' && op != '/' && op != '^' && op != '%') break; 
+        if (op != '+' && op != '-' && op != '*' && op != '/' && op != '%' && op != '^') break;
         ptr++;
-        while (*ptr == ' ') ptr++;
-        if (!*ptr) break;
         
-        double valor;
+        // EXTRAER EL SIGUIENTE OPERANDO RESPETANDO LA JERARQUÍA
         char token[MAX_LINEA];
         int i = 0;
         int nivel_corchete = 0;
-        int nivel_parentesis_funcion = 0;
+        int nivel_parentesis = 0;
+        
         while (*ptr && i < MAX_LINEA - 1) {
-            if (*ptr == '[') { nivel_corchete++; token[i++] = *ptr++; }
-            else if (*ptr == ']' && nivel_corchete > 0) { nivel_corchete--; token[i++] = *ptr++; }
-            else if (*ptr == '(' && nivel_corchete == 0) {
-                nivel_parentesis_funcion = 1;
-                token[i++] = *ptr++;
-                while (*ptr && nivel_parentesis_funcion > 0 && i < MAX_LINEA - 1) {
-                    if (*ptr == '(') nivel_parentesis_funcion++;
-                    else if (*ptr == ')') nivel_parentesis_funcion--;
-                    token[i++] = *ptr++;
+            if (*ptr == '(') nivel_parentesis++;
+            else if (*ptr == ')') nivel_parentesis--;
+            else if (*ptr == '[') nivel_corchete++;
+            else if (*ptr == ']') nivel_corchete--;
+            
+            // Condición de parada: si estamos en nivel 0 y encontramos un operador 
+            // de menor o igual precedencia que el operador actual (op)
+            int parar = 0;
+            if (nivel_corchete == 0 && nivel_parentesis == 0) {
+                if (op == '+' || op == '-') {
+                    if (*ptr == '+' || *ptr == '-') parar = 1;
+                } 
+                else if (op == '*' || op == '/' || op == '%') {
+                    if (*ptr == '+' || *ptr == '-' || *ptr == '*' || *ptr == '/' || *ptr == '%') parar = 1;
+                } 
+                else if (op == '^') {
+                    if (*ptr == '+' || *ptr == '-' || *ptr == '*' || *ptr == '/' || *ptr == '%' || *ptr == '^') parar = 1;
                 }
             }
-            else if (nivel_corchete == 0 && nivel_parentesis_funcion == 0 &&
-                (*ptr == ' ' || *ptr == '+' || *ptr == '-' || *ptr == '*' || *ptr == '/' || *ptr == '%')) {
-                break;
-            }
-            else { token[i++] = *ptr++; }
+            
+            if (parar) break;
+            
+            token[i++] = *ptr++;
         }
         token[i] = '\0';
         limpiar_string(token);
         
+        // Evaluar el token extraído (que puede contener operadores de mayor precedencia)
         int exito_val;
-        valor = evaluar_expresion_completa(token, &exito_val);
+        double valor = evaluar_expresion_completa(token, &exito_val);
         if (!exito_val) {
             fprintf(stderr, "Error: No se pudo evaluar '%s'.\n", token);
+            profundidad_eval--;
             return 0;
         }
         
+        // Aplicar el operador al resultado acumulado
         if (op == '+') resultado += valor;
         else if (op == '-') resultado -= valor;
         else if (op == '*') resultado *= valor;
@@ -1767,6 +1775,7 @@ double evaluar_expresion_completa(const char *expr, int *exito) {
     *exito = 1;
     return resultado;
 }
+
 
 // IMPLEMENTACIONES DE FUNCIONES MATEMÁTICAS
 double nico_seno(double x) { return sin(x); }

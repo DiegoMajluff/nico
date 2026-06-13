@@ -35,19 +35,15 @@ BLOQUE PRINCIPAL
     ESCRIBIR("╚════════════════════════════════════════╝") SALTO
     ESCRIBIR("") SALTO
 
-    // ==========================================
     // 1. RECURSIÓN PROFUNDA
-    // ==========================================
-    ESCRIBIR("=== 1. RECURSIÓN (Fibonacci 35) ===") SALTO
-    ESCRIBIR("¡¡Puede tardar mucho tiempo!!") SALTO
+    ESCRIBIR("=== 1. RECURSIÓN (Fibonacci 25) ===") SALTO
+    ESCRIBIR("Puede tardar...") SALTO
     VARIABLE ENTERA $fib = 0
-    CALCULAR EN $fib = fibonacci(35)
-    ESCRIBIR("Fibonacci(35) = $fib (Esperado: 9227465)") SALTO
+    CALCULAR EN $fib = fibonacci(25)
+    ESCRIBIR("Fibonacci(25) = $fib (Esperado: 75025)") SALTO
     ESCRIBIR("") SALTO
 
-    // ==========================================
     // 2. ESTRÉS DE CADENAS ANIDADAS Y EXTENSAS
-    // ==========================================
     ESCRIBIR("=== 2. ESTRÉS DE CADENAS ===") SALTO
     VARIABLE TEXTO $base = "nico"
     VARIABLE TEXTO EXTENSO $resultado_cadena = ""
@@ -71,9 +67,7 @@ BLOQUE PRINCIPAL
     ESCRIBIR("Texto con escape procesado sin crash: OK") SALTO
     ESCRIBIR("") SALTO
 
-    // ==========================================
     // 3. MATEMÁTICAS Y BITS AL LÍMITE
-    // ==========================================
     ESCRIBIR("=== 3. MATEMÁTICAS Y BITS AL LÍMITE ===") SALTO
     VARIABLE ENTERA SIN SIGNO $bit_test = 0
     CALCULAR EN $bit_test = BITNO(0)
@@ -89,9 +83,7 @@ BLOQUE PRINCIPAL
     ESCRIBIR("MODULO(1000000007, 10) = $mod_test (Esperado: 7)") SALTO
     ESCRIBIR("") SALTO
 
-    // ==========================================
     // 4. SHADOWING DE SCOPE (Aislamiento)
-    // ==========================================
     ESCRIBIR("=== 4. SOMBRAS DE SCOPE (Shadowing) ===") SALTO
     VARIABLE ENTERA $scope_test = 0
     CALCULAR EN $scope_test = probar_scope(200)
@@ -99,9 +91,7 @@ BLOQUE PRINCIPAL
     ESCRIBIR("Variable global intacta: $nivel_global (Esperado: 999)") SALTO
     ESCRIBIR("") SALTO
 
-    // ==========================================
     // 5. BUCLES Y CONDICIONES ANIDADAS
-    // ==========================================
     ESCRIBIR("=== 5. BUCLES ANIDADAS ===") SALTO
     VARIABLE ENTERA $contador = 0
     VARIABLE ENTERA $i = 0

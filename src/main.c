@@ -1873,6 +1873,7 @@ void handler_sigint(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+    pila_retorno.tope = 0;
     signal(SIGINT, handler_sigint);   // Ctrl+C
     signal(SIGTERM, handler_sigint);  // Kill
 

@@ -204,6 +204,7 @@ int cmd_texto_funcion(const char *linea, CtxBloque *ctx, int linea_actual) {
     procesar_funcion_texto(linea);
     return 0;
 }
+
 const CmdEntry dispatch_table[] = {
     { "COPIARTEXTO",         cmd_texto_funcion       },
     { "CONCATENARTEXTO",     cmd_texto_funcion       },
