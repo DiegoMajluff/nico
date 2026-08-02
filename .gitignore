@@ -29,3 +29,39 @@ Nico.AppDir/
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+
+# ==========================================
+# Limpieza de artefactos de compilación y build
+# ==========================================
+nico
+nico.exe
+*.o
+*.obj
+
+# Carpetas de empaquetado y build
+Nico-v2.1.0-Linux/
+bin/
+nico.AppDir/
+build/
+dist/
+
+# Herramientas de terceros (AppImage)
+linuxdeploy
+linuxdeploy-plugin-qt
+appimagetool*.AppImage
+
+# Archivos de configuración de Windows/Inno (se suben en el Release, no en el código)
+nico-installer.iss
+nico_stack.def
+build_windows*.bat
+compile_windows.bat
+
+# Imágenes sueltas de íconos (ya están en el Release)
+nico-icon*.png
+nico-icon*.ico
+nico-ide.ico
+
+# Scripts redundantes y archivos sueltos
+package.json
+build_appimage.sh
+install_appimage.sh
