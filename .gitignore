@@ -1,66 +1,31 @@
-# ===========================================================
-# Nico v2.0.0 - .gitignore
-# Configuración para mantener el repositorio limpio y ligero
-# ===========================================================
-
-# 🔨 Artefactos de compilación
+# Archivos compilados y objetos
 *.o
+*.obj
+*.exe
 *.out
-nico
-nico.exe
+*.app
+*.dll
 *.so
 *.dylib
-*.a
-*.dll
-*.pdb
-*.ilk
-*.exp
 
-# 📁 Directorios de build
+# Carpetas de compilación
 build/
+Build/
 dist/
-obj/
-release/
-cmake-build-*/
+Nico.AppDir/
 
-# 🗄️ Bases de datos SQLite (generadas en runtime/tests)
-*.db
-*.sqlite3
-!.gitkeep
-
-# 🖥️ Archivos específicos de SO
-# Windows
-Thumbs.db
-desktop.ini
-*.lnk
-$RECYCLE.BIN/
-# macOS
-.DS_Store
-._*
-# Linux
-*~
-.cache/
-.directory
-
-# 💻 IDEs y Editores
+# Archivos de configuración de IDEs
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
 *.swp
 *.swo
-*~
-.project
-.cproject
 
-# 📝 Logs y temporales
-compile_errors.txt
-*.log
-*.tmp
-*.bak
-*.dump
+# Archivos de empaquetado temporal (ya los subiremos como Releases, no al código fuente)
+*.tar.gz
+*.zip
+*.AppImage
+*-Setup.exe
 
-# ✅ Excepción crítica: Binarios precompilados de Windows
-!bin/windows/*.dll
-!bin/windows/nico.exe
-package.json
+# Archivos de sistema
+.DS_Store
+Thumbs.db

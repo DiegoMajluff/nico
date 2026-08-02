@@ -1,0 +1,50 @@
+PROGRAMA test05_recursion
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    // Hechos
+
+    AGREGARHECHO("padre(juan,pedro)")
+    AGREGARHECHO("padre(pedro,luis)")
+    AGREGARHECHO("padre(luis,carlos)")
+    AGREGARHECHO("padre(carlos,martin)")
+
+    // Reglas recursivas
+
+    AGREGARREGLA("ancestro(X,Y) :- padre(X,Y)")
+    AGREGARREGLA("ancestro(X,Y) :- padre(X,Z), ancestro(Z,Y)")
+
+    ESCRIBIR("==============================") SALTO
+    ESCRIBIR("TEST 5 - RECURSION") SALTO
+    ESCRIBIR("==============================") SALTO
+
+    ESCRIBIR("Prueba 1: ancestro(juan,pedro)") SALTO
+    CONSULTAR("ancestro(juan,pedro)")
+    
+    ESCRIBIR("Prueba 2: ancestro(juan,luis)") SALTO
+    CONSULTAR("ancestro(juan,luis)")
+    
+    ESCRIBIR("Prueba 3: ancestro(juan,carlos)") SALTO
+    CONSULTAR("ancestro(juan,carlos)")
+    
+    ESCRIBIR("Prueba 4: ancestro(juan,martin)") SALTO
+    CONSULTAR("ancestro(juan,martin)")
+    
+    ESCRIBIR("Prueba 5: ancestro(pedro,martin)") SALTO
+    CONSULTAR("ancestro(pedro,martin)")
+    
+    ESCRIBIR("Prueba 6: ancestro(luis,juan)") SALTO
+    CONSULTAR("ancestro(luis,juan)")
+    
+    ESCRIBIR("Prueba 7: ancestro(X,martin)") SALTO
+    CONSULTAR("ancestro(X,martin)")
+    
+    ESCRIBIR("Prueba 8: ancestro(juan,Y)") SALTO
+    CONSULTAR("ancestro(juan,Y)")
+    
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

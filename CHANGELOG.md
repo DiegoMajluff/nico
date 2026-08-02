@@ -3,7 +3,84 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
----
+## [2.1.0] - 2026-07-28
+
+### ✨ Añadido
+
+#### Motor Lógico (estilo Prolog) - NUEVO
+- **Motor de inferencia completo** con unificación y backtracking.
+- **Unificación avanzada**:
+  - Unificación básica de términos y variables.
+  - **Occurs Check** para evitar unificaciones circulares (`X = [X]`).
+  - Soporte para **variable anónima `_`** (unifica con cualquier cosa sin crear binding).
+- **Listas**:
+  - Listas concretas: `[a, b, c]`.
+  - Patrones cabeza|cola: `[H|T]`.
+  - Patrones anidados: `[[H|T]|R]`, `[a, b|R]`.
+  - Listas vacías: `[]`.
+- **Control de flujo lógico**:
+  - Backtracking automático sobre múltiples soluciones.
+  - Recursión con renombrado automático de variables (evita colisiones).
+  - Operador de **corte** `!` con efecto local y global.
+  - **Negación por fallo** con el operador `NO`.
+- **Aritmética en el motor lógico**:
+  - Operadores: `+`, `-`, `*`, `/`, `%`, `^`, `MOD`.
+  - Precedencia de operadores respetada.
+  - Comparadores: `MAYOR`, `MENOR`, `IGUAL`, `DIFERENTE`, `ES`.
+- **Nuevos comandos del motor lógico**:
+  - `AGREGARHECHO("predicado(args)")` - Agrega un hecho a la base de conocimiento.
+  - `AGREGARREGLA("cabeza SI cuerpo")` o `AGREGARREGLA("cabeza :- cuerpo")` - Agrega una regla.
+  - `CONSULTAR("predicado(args)")` - Realiza una consulta.
+  - `LIMPIARLOGICA` - Limpia la base de conocimiento.
+  - `LISTARHECHOS` / `LISTARREGLAS` - Muestra la base de conocimiento.
+  - `BUSCARTODOS("variable", "consulta", $resultado)` - Recolecta todas las soluciones en una lista (estilo `FINDALL`).
+- **Predicados built-in del motor lógico**:
+  - `MIEMBRO(X, Lista)` - Verifica si X es miembro de Lista.
+  - `LONGITUD(Lista, N)` - Calcula la longitud de una lista.
+  - `PRIMER(Lista, X)` - Obtiene el primer elemento.
+  - `ULTIMO(Lista, X)` - Obtiene el último elemento.
+  - `JUNTAR(L1, L2, L3)` - Concatenación bidireccional de listas (estilo `APPEND`).
+  - `REVERSA(L1, L2)` - Invierte una lista (estilo `REVERSE`).
+  - `=` (unificación directa) - Predicado especial para unificar términos.
+- **Disyunción en reglas**:
+  - Soporte para `O` y `;` en el cuerpo de las reglas.
+  - Ejemplo: `AGREGARREGLA("es_par(X) :- X = 0 O X = 2 O X = 4")`
+
+#### Instalador
+- **Instalador para Linux** (`install.sh`): Detecta distribución, instala dependencias, compila e instala todo.
+- **Instalador para Windows** (InnoSetup): Wizard Next/Next/Finish con MSYS2 opcional para desarrolladores.
+- **Script de instalación de MSYS2** (`scripts/install_msys2.ps1`): Instala automáticamente gcc, cmake, Qt5, SQLite.
+
+#### IDE
+- Resaltado de sintaxis para todos los comandos del motor lógico.
+- Bug de renderizado con números en versiones corregido (ej: `nico-v2.1.0`).
+
+#### Tests de Validación
+- 10 tests de validación del motor lógico (unificación, occurs check, listas, backtracking, recursión, corte, built-ins, aritmética, patrones anidados, BUSCARTODOS).
+
+### 🔧 Cambiado
+- Unificación de `ENCONTRARTODOS` y `BUSCARTODOS` en un único comando: **`BUSCARTODOS`**.
+- Mensajes de error ahora usan el nombre oficial del comando.
+- Versión actualizada a **2.1.0** en todos los archivos (intérprete, IDE, scripts).
+
+### 🐛 Corregido
+- Renombrado de variables en hechos (evitaba colisiones silenciosas).
+- Detección de variables dentro de listas anidadas en el parser lógico.
+- Manejo correcto de consultas sin resultados (lista vacía en BUSCARTODOS).
+- Renderizado de números en el IDE cuando aparecen en contextos no numéricos (ej: `nico-v2.0.0`).
+
+### 📚 Documentación
+- `README.md`: Actualizado con sección completa del motor lógico.
+- `CHANGELOG.md`: Entrada detallada de v2.1.0.
+- Pendiente: Actualizar `docs/` con documentación específica del motor lógico.
+
+### 👥 Créditos
+- **Diseño, Arquitectura y Supervisión**: Diego Alejandro Majluff
+- **Implementación, Debugging y Optimización**: Qwen (Alibaba Cloud)
+- **Licencia**: MIT / Uso Educativo
+
+💡 **Nota**: Nico v2.1.0 es un release que agrega un paradigma completo (programación lógica estilo Prolog) al lenguaje imperativo existente, permitiendo combinar ambos paradigmas en un mismo programa. La versión 2.0.0 se mantiene estable y sin cambios incompatibles.
+
 ## [2.0.0] - 2026-07-06
 
 ### 🏗️ Cambios Arquitectónicos
@@ -63,8 +140,6 @@ Documentación actualizada con códigos de teclas especiales.
 
 > 💡 **Nota:** Nico v2.0.0 es un release de madurez arquitectónica que migra a AST, elimina features redundantes (alias SQL, LEERLINEA) y completa la documentación de todos los módulos. La arquitectura AST establece la base para optimizaciones futuras, análisis estático y compilación a bytecode.
 
----
-
 ## [1.1.1] - 2026-06-08
 
 ### ✅ Agregado
@@ -115,8 +190,6 @@ Documentación actualizada con códigos de teclas especiales.
 - **Licencia:** MIT / Uso Educativo
 
 > 💡 **Nota:** Nico v1.1.1 es un release de estabilización crítica que corrige bugs fundamentales en el motor de ejecución (recursión profunda, operadores infijos) y completa el soporte de memoria dinámica para `TEXTO EXTENSO` en todas las operaciones de cadena. Esta versión establece la base sólida para el desarrollo de features avanzadas en v2.0.0.
-
----
 
 ## [1.1.0] - 2026-06-04
 
@@ -177,8 +250,6 @@ Documentación actualizada con códigos de teclas especiales.
 
 > 💡 **Nota:** Nico v1.1.0 estabiliza el sistema de scopes y tipos, añade la primera capa de abstracción de hardware nativa (GPIO) y completa la documentación modular. La próxima versión (`v1.2.0`) planifica errores didácticos, `INCLUIR`, precedencia matemática nativa y tipo `BOOLEANA`.
 
----
-
 ## [1.0.1] - 2026-05-07
 
 ### ✅ Agregado
@@ -218,4 +289,4 @@ Documentación actualizada con códigos de teclas especiales.
 > 💡 **Nota:** Este release prioriza estabilidad, claridad pedagógica y compatibilidad multiplataforma. La precedencia matemática nativa se planificó como feature principal para `v1.1.0`.
 
 ---
-📚 *Documentación validada con Nico v2.0.0. Ejemplos probados en Linux, Windows y Raspberry Pi OS.*
+📚 *Documentación validada con Nico v2.1.0. Ejemplos probados en Linux, Windows y Raspberry Pi OS.*

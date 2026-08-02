@@ -1,0 +1,35 @@
+PROGRAMA test01_unificacion
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    // Predicado de igualdad
+    AGREGARREGLA("igual(A, A)")
+
+    ESCRIBIR("==============================") SALTO
+    ESCRIBIR("TEST 1 - UNIFICACION BASICA") SALTO
+    ESCRIBIR("==============================") SALTO 
+
+    ESCRIBIR("Prueba 1: igual(a,a)") SALTO
+    CONSULTAR("igual(a,a)")
+    
+    ESCRIBIR("Prueba 2: igual(a,b)") SALTO
+    CONSULTAR("igual(a,b)")
+
+    ESCRIBIR("Prueba 3: igual(X,a)") SALTO
+    CONSULTAR("igual(X,a)")
+
+    ESCRIBIR("Prueba 4: igual(a,X)") SALTO
+    CONSULTAR("igual(a,X)")
+
+    ESCRIBIR("Prueba 5: igual(X,X)") SALTO
+    CONSULTAR("igual(X,X)")
+
+    ESCRIBIR("Prueba 6: igual(X,Y)") SALTO
+    CONSULTAR("igual(X,Y)")
+
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

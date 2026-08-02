@@ -1,0 +1,67 @@
+PROGRAMA test08_aritmetica
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    AGREGARREGLA("igual(A,A)")
+
+    ESCRIBIR("==================================") SALTO
+    ESCRIBIR("TEST 8 - ARITMETICA Y COMPARADORES") SALTO
+    ESCRIBIR("==================================") SALTO 
+
+    ESCRIBIR("Prueba 1: igual(X,2+3)") SALTO
+    CONSULTAR("igual(X,2+3)")
+    
+    ESCRIBIR("Prueba 2: igual(X,2*3)") SALTO
+    CONSULTAR("igual(X,2*3)")
+    
+    ESCRIBIR("Prueba 3: igual(X,8/2)") SALTO
+    CONSULTAR("igual(X,8/2)")
+    
+    ESCRIBIR("Prueba 4: igual(X,8%3)") SALTO
+    CONSULTAR("igual(X,8%3)")
+    
+    ESCRIBIR("Prueba 5: igual(X,8 MOD 3)") SALTO
+    CONSULTAR("igual(X,8 MOD 3)")
+    
+    ESCRIBIR("Prueba 6: igual(X,2+3*4)") SALTO
+    CONSULTAR("igual(X,2+3*4)")
+    
+    ESCRIBIR("Prueba 7: igual(X,(2+3)*4)") SALTO
+    CONSULTAR("igual(X,(2+3)*4)")
+    
+    ESCRIBIR("Prueba 8: 5 MAYOR 3") SALTO
+    CONSULTAR("5 MAYOR 3")
+    
+    ESCRIBIR("Prueba 9: 3 MAYOR 5") SALTO
+    CONSULTAR("3 MAYOR 5")
+    
+    ESCRIBIR("Prueba 10: 3 MENOR 5") SALTO
+    CONSULTAR("3 MENOR 5")
+    
+    ESCRIBIR("Prueba 11: 5 MENOR 3") SALTO
+    CONSULTAR("5 MENOR 3")
+    
+    ESCRIBIR("Prueba 12: 5 MAYOR IGUAL 5") SALTO
+    CONSULTAR("5 MAYOR IGUAL 5")
+    
+    ESCRIBIR("Prueba 13: 5 MENOR IGUAL 5") SALTO
+    CONSULTAR("5 MENOR IGUAL 5")
+    
+    ESCRIBIR("Prueba 14: 4 DIFERENTE 5") SALTO
+    CONSULTAR("4 DIFERENTE 5")
+    
+    ESCRIBIR("Prueba 15: 4 DIFERENTE 4") SALTO
+    CONSULTAR("4 DIFERENTE 4")
+    
+    ESCRIBIR("Prueba 16: 4 IGUAL 4") SALTO
+    CONSULTAR("4 IGUAL 4")
+    
+    ESCRIBIR("Prueba 17: 4 IGUAL 5") SALTO
+    CONSULTAR("4 IGUAL 5")
+    
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

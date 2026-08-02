@@ -1,0 +1,31 @@
+PROGRAMA test02_occurs_check
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    AGREGARREGLA("igual(A, A)")
+
+    ESCRIBIR("==============================") SALTO
+    ESCRIBIR("TEST 2 - OCCURS CHECK") SALTO
+    ESCRIBIR("==============================") SALTO 
+
+    ESCRIBIR("Prueba 1: igual(X,[X])") SALTO
+    CONSULTAR("igual(X,[X])")
+    
+    ESCRIBIR("Prueba 2: igual(X,[Y])") SALTO
+    CONSULTAR("igual(X,[Y])")
+    
+    ESCRIBIR("Prueba 3: igual(X,[a,X])") SALTO
+    CONSULTAR("igual(X,[a,X])")
+    
+    ESCRIBIR("Prueba 4: igual(X,[[X]])") SALTO
+    CONSULTAR("igual(X,[[X]])")
+    
+    ESCRIBIR("Prueba 5: igual(X,\[1,\[2,\[X\]\]\])") SALTO
+    CONSULTAR("igual(X,[1,[2,[X]]])")
+    
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

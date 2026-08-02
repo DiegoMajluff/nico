@@ -1,0 +1,43 @@
+PROGRAMA test03_listas
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    AGREGARREGLA("igual(A, A)")
+
+    ESCRIBIR("==============================") SALTO
+    ESCRIBIR("TEST 3 - UNIFICACION DE LISTAS") SALTO
+    ESCRIBIR("==============================") SALTO
+
+    ESCRIBIR("Prueba 1: igual(\[\],\[\])") SALTO
+    CONSULTAR("igual([],[])")
+    
+    ESCRIBIR("Prueba 2: igual(\[1\],\[1\])") SALTO
+    CONSULTAR("igual([1],[1])")
+    
+    ESCRIBIR("Prueba 3: igual(\[1\],\[2\])") SALTO
+    CONSULTAR("igual([1],[2])")
+    
+    ESCRIBIR("Prueba 4: igual(\[1,2\],\[1,2\])") SALTO
+    CONSULTAR("igual([1,2],[1,2])")
+    
+    ESCRIBIR("Prueba 5: igual(\[1,2\],\[2,1\])") SALTO
+    CONSULTAR("igual([1,2],[2,1])")
+    
+    ESCRIBIR("Prueba 6: igual(\[X,2\],\[1,Y\])") SALTO
+    CONSULTAR("igual([X,2],[1,Y])")
+    
+    ESCRIBIR("Prueba 7: igual(\[X,Y\],\[1,2\])") SALTO
+    CONSULTAR("igual([X,Y],[1,2])")
+    
+    ESCRIBIR("Prueba 8: igual(\[X,X\],\[1,1\])") SALTO
+    CONSULTAR("igual([X,X],[1,1])")
+    
+    ESCRIBIR("Prueba 9: igual(\[X,X\],\[1,2\])") SALTO
+    CONSULTAR("igual([X,X],[1,2])")
+    
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

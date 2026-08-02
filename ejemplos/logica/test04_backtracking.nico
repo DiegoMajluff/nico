@@ -1,0 +1,30 @@
+PROGRAMA test04_backtracking
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+
+    AGREGARHECHO("color(rojo)")
+    AGREGARHECHO("color(verde)")
+    AGREGARHECHO("color(azul)")
+
+    ESCRIBIR("==============================") SALTO
+    ESCRIBIR("TEST 4 - BACKTRACKING") SALTO
+    ESCRIBIR("==============================") SALTO
+
+    ESCRIBIR("Prueba 1: color(X)") SALTO
+    CONSULTAR("color(X)")
+    
+    ESCRIBIR("Prueba 2: color(rojo)") SALTO
+    CONSULTAR("color(rojo)")
+    
+    ESCRIBIR("Prueba 3: color(amarillo)") SALTO
+    CONSULTAR("color(amarillo)")
+    
+    ESCRIBIR("Prueba 4: color(Y)") SALTO
+    CONSULTAR("color(Y)")
+    
+    LIMPIARLOGICA
+
+FIN PRINCIPAL
+FINAL

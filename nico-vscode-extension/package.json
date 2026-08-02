@@ -1,0 +1,25 @@
+{
+    "name": "nico-language",
+    "displayName": "Nico Language",
+    "description": "Syntax highlighting for Nico programming language",
+    "version": "1.0.0",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "nico",
+            "aliases": ["Nico", "nico"],
+            "extensions": [".nico"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "nico",
+            "scopeName": "source.nico",
+            "path": "./syntaxes/nico.tmLanguage.json"
+        }]
+    }
+}
