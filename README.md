@@ -22,7 +22,7 @@ Nico es un lenguaje de programación interpretado y 100% en español, diseñado 
 
 ### Compilar
 
-**Linux / macOS:**
+**Linux:**
 ```bash
 chmod +x compile.sh && ./compile.sh
 ```
@@ -49,6 +49,18 @@ sudo ./install.sh
 ```
 
 El instalador detecta tu distribución, instala dependencias, compila todo y deja `nico` y `nico-ide` disponibles globalmente.
+
+### Raspberry Pi (aarch64)
+Descargá el paquete `Nico-2.1.0-rpi-aarch64.zip` desde [Releases](https://github.com/DiegoMajluff/nico/releases), extraé el contenido y seguí las instrucciones del archivo `LEEME.txt` incluido.
+
+En resumen:
+chmod +x Nico-2.1.0-aarch64.AppImage
+sudo ./install_appimage.sh Nico-2.1.0-aarch64.AppImage
+
+Esto instalará `nico` y `nico-ide` globalmente, creará accesos en el menú de aplicaciones y dejará ejemplos y documentación en `~/nico-v2.1.0/`.
+
+Para usar GPIO sin sudo:
+sudo usermod -a -G gpio $USER
 
 ## 📖 Ejemplo de Uso
 
@@ -202,6 +214,7 @@ CONFIGURARPIN(17, ENTRADA, PULLUP)
 CONFIGURARPIN(18, SALIDA)
 GENERARPWM(18, 100, 50)
 ```
+Disponible en el AppImage para Raspberry Pi aarch64 con soporte nativo mediante libgpiod.
 
 ## 📄 Licencia y Contribuciones
 
@@ -211,9 +224,22 @@ GENERARPWM(18, 100, 50)
 
 - **Diseño/Arquitectura/Supervisión**: Diego Alejandro Majluff
 - **Implementación**: Qwen (Alibaba Cloud)
-- **Versión**: 2.1.0 (Julio 2026)
+- **Versión**: 2.1.0 (Agosto 2026)
 
 ### Cross-platform
+
+Cross-platform
+Compila y corre en Windows, Linux y Raspberry Pi.
+
+Distribución:
+
+- Windows: Instalador tradicional (`Nico-2.1.0-Setup.exe`) con todo incluido
+- Linux x86_64: AppImage (`Nico-2.1.0-x86_64.AppImage`) con instalador (`install_appimage.sh`)
+- Raspberry Pi aarch64: Paquete ZIP (`Nico-2.1.0-rpi-aarch64.zip`) con AppImage, instalador y guía completa
+
+En Windows requiere DLLs incluidas (sqlite3, pthread, Qt5). En Linux y Raspberry Pi es un binario autocontenido.
+
+Compilación desde fuentes disponible para todas las plataformas (MSYS2 opcional para Windows).
 
 Compila y corre en Linux (incluyendo Raspberry Pi) y Windows. En Linux/RPi es un binario único; en Windows requiere DLLs incluidas (sqlite3, pthread, Qt5).
 
