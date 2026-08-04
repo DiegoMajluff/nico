@@ -1,0 +1,91 @@
+// ============================================================
+// Ejemplo: Aliases simbólicos de operadores lógicos
+// ============================================================
+// Este ejemplo muestra cómo usar los aliases simbólicos
+// de los operadores de comparación en el motor lógico.
+//
+// Aliases disponibles:
+//   MAYOR       -> >
+//   MENOR       -> <
+//   MAYOR IGUAL -> >=
+//   MENOR IGUAL -> <=
+//   IGUAL       -> ==
+//   DIFERENTE   -> !=
+// ============================================================
+
+PROGRAMA aliases_operadores
+
+BLOQUE PRINCIPAL
+
+    LIMPIARLOGICA
+    
+    // --------------------------------------------------------
+    // Ejemplo 1: DIFERENTE (!=) para filtrar resultados
+    // --------------------------------------------------------
+    ESCRIBIR("=== Ejemplo 1: Hermanos (usando !=) ===") SALTO
+    
+    AGREGARHECHO("padre(juan, inés)")
+    AGREGARHECHO("padre(juan, diego)")
+    AGREGARHECHO("padre(juan, maría)")
+    
+    // X e Y son hermanos si ambos son hijos de juan, pero X != Y
+    AGREGARREGLA("hermano(X, Y) SI padre(juan, X), padre(juan, Y), X != Y")
+    
+    CONSULTAR("hermano(inés, Y)")
+    
+    // --------------------------------------------------------
+    // Ejemplo 2: IGUAL (==) para verificar coincidencias
+    // --------------------------------------------------------
+    ESCRIBIR("") SALTO
+    ESCRIBIR("=== Ejemplo 2: Verificar igualdad (usando ==) ===") SALTO
+    
+    AGREGARREGLA("igual_test(X, Y) SI X == Y")
+    
+    CONSULTAR("igual_test(hola, hola)")
+    CONSULTAR("igual_test(hola, chau)")
+    
+    // --------------------------------------------------------
+    // Ejemplo 3: Comparaciones numéricas con aliases
+    // --------------------------------------------------------
+    ESCRIBIR("") SALTO
+    ESCRIBIR("=== Ejemplo 3: Comparaciones numéricas ===") SALTO
+    
+    // Mayor que (>)
+    AGREGARREGLA("mayor_que(X, Y) SI X > Y")
+    CONSULTAR("mayor_que(10, 5)")
+    CONSULTAR("mayor_que(3, 5)")
+    
+    // Menor que (<)
+    AGREGARREGLA("menor_que(X, Y) SI X < Y")
+    CONSULTAR("menor_que(3, 5)")
+    CONSULTAR("menor_que(10, 5)")
+    
+    // Mayor o igual (>=)
+    AGREGARREGLA("mayor_igual(X, Y) SI X >= Y")
+    CONSULTAR("mayor_igual(10, 5)")
+    CONSULTAR("mayor_igual(5, 5)")
+    CONSULTAR("mayor_igual(3, 5)")
+    
+    // Menor o igual (<=)
+    AGREGARREGLA("menor_igual(X, Y) SI X <= Y")
+    CONSULTAR("menor_igual(3, 5)")
+    CONSULTAR("menor_igual(5, 5)")
+    CONSULTAR("menor_igual(10, 5)")
+    
+    // --------------------------------------------------------
+    // Ejemplo 4: Combinación de operadores
+    // --------------------------------------------------------
+    ESCRIBIR("") SALTO
+    ESCRIBIR("=== Ejemplo 4: Rango (entre 5 y 10) ===") SALTO
+    
+    AGREGARREGLA("en_rango(X) SI X >= 5, X <= 10")
+    
+    CONSULTAR("en_rango(7)")    // Debe dar VERDADERO
+    CONSULTAR("en_rango(5)")    // Debe dar VERDADERO
+    CONSULTAR("en_rango(10)")   // Debe dar VERDADERO
+    CONSULTAR("en_rango(3)")    // Debe dar FALSO
+    CONSULTAR("en_rango(15)")   // Debe dar FALSO
+    
+    LIMPIARLOGICA
+FIN PRINCIPAL
+FINAL

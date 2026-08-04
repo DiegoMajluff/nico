@@ -1036,12 +1036,12 @@ static bool parsear_condicion_aritmetica(const char *str, Condicion *cond)
         return false;
 
     // Buscar operadores como palabras completas (sin depender de espacios exactos al final)
-    const char *ops[] = {"MAYOR IGUAL", "MENOR IGUAL", "MAYOR", "MENOR", "IGUAL", "DIFERENTE", "ES"};
-    const int ops_lens[] = {11, 11, 5, 5, 5, 9, 2};
+    const char *ops[] = {"MAYOR IGUAL", "MENOR IGUAL", ">=", "<=", "!=", "==", "MAYOR", "MENOR", "IGUAL", "DIFERENTE", ">", "<", "ES"};
+    const int ops_lens[] = {11, 11, 2, 2, 2, 2, 5, 5, 5, 9, 1, 1, 2};
     const char *encontrado = NULL;
     int op_idx = -1;
 
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 13; i++)
     {
         const char *temp = str;
         while ((temp = strstr(temp, ops[i])) != NULL)
@@ -1703,22 +1703,68 @@ static bool evaluar_condicion_aritmetica(Condicion *cond, Bindings *bindings, vo
     strncpy(lado_der, resolver_var(bindings, cond->args[1]), 63);
     lado_der[63] = '\0';
 
+    // ============================================================
+    // IGUALDAD: IGUAL o ==
+    // ============================================================
+    if (strcmp(cond->operador, "IGUAL ") == 0 || strcmp(cond->operador, "== ") == 0)
+    {
+        // Si ambos son strings idénticos, son iguales
+        if (strcmp(lado_izq, lado_der) == 0)
+            return true;
+
+        // Intentar comparación numérica si parecen números
+        char *endptr;
+        double val_izq = strtod(lado_izq, &endptr);
+        if (*endptr != '\0')
+            return false; // No es número
+
+        double val_der = strtod(lado_der, &endptr);
+        if (*endptr != '\0')
+            return false; // No es número
+
+        return val_izq == val_der;
+    }
+
+    // ============================================================
+    // DESIGUALDAD: DIFERENTE o !=
+    // ============================================================
+    if (strcmp(cond->operador, "DIFERENTE ") == 0 || strcmp(cond->operador, "!= ") == 0)
+    {
+        // Si los strings son diferentes, son diferentes
+        if (strcmp(lado_izq, lado_der) != 0)
+            return true;
+
+        // Si los strings son iguales, verificar si son números iguales
+        char *endptr;
+        double val_izq = strtod(lado_izq, &endptr);
+        if (*endptr != '\0')
+            return false;
+
+        double val_der = strtod(lado_der, &endptr);
+        if (*endptr != '\0')
+            return false;
+
+        return val_izq != val_der;
+    }
+
+    // ============================================================
+    // OPERADORES ARITMÉTICOS: convertir a double
+    // ============================================================
     double val_izq = evaluar_expresion_logica(lado_izq, bindings, contexto);
     double val_der = evaluar_expresion_logica(lado_der, bindings, contexto);
 
-    if (strcmp(cond->operador, "MAYOR ") == 0)
+    if (strcmp(cond->operador, "MAYOR ") == 0 || strcmp(cond->operador, "> ") == 0)
         return val_izq > val_der;
-    if (strcmp(cond->operador, "MENOR ") == 0)
+    if (strcmp(cond->operador, "MENOR ") == 0 || strcmp(cond->operador, "< ") == 0)
         return val_izq < val_der;
-    if (strcmp(cond->operador, "MAYOR IGUAL ") == 0)
+    if (strcmp(cond->operador, "MAYOR IGUAL ") == 0 || strcmp(cond->operador, ">= ") == 0)
         return val_izq >= val_der;
-    if (strcmp(cond->operador, "MENOR IGUAL ") == 0)
+    if (strcmp(cond->operador, "MENOR IGUAL ") == 0 || strcmp(cond->operador, "<= ") == 0)
         return val_izq <= val_der;
-    if (strcmp(cond->operador, "IGUAL ") == 0)
-        return val_izq == val_der;
-    if (strcmp(cond->operador, "DIFERENTE ") == 0)
-        return val_izq != val_der;
 
+    // ============================================================
+    // OPERADOR ES
+    // ============================================================
     if (strcmp(cond->operador, "ES ") == 0)
     {
         if (es_variable(cond->args[0]))
@@ -1729,6 +1775,7 @@ static bool evaluar_condicion_aritmetica(Condicion *cond, Bindings *bindings, vo
         }
         return false;
     }
+
     return false;
 }
 

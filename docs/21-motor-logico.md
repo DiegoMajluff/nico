@@ -86,6 +86,17 @@ La **variable anónima** `_` unifica con cualquier cosa sin crear binding:
 CONSULTAR("padre(_, Y)")  // ¿De quién es padre alguien?
 ```
 
+### Comparadores
+ MAYOR (>), MENOR (<), MAYOR IGUAL (>=), MENOR IGUAL (<=), IGUAL (==), DIFERENTE (!=), ES
+
+Todos los operadores de comparación tienen aliases simbólicos familiares:
+- `MAYOR` o `>`
+- `MENOR` o `<`
+- `MAYOR IGUAL` o `>=`
+- `MENOR IGUAL` o `<=`
+- `IGUAL` o `==`
+- `DIFERENTE` o `!=`
+
 ### Listas
 
 Las **listas** son secuencias de elementos:

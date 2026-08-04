@@ -864,7 +864,8 @@ FINAL
 - **Negación por fallo** `NO`: `NO padre(X, Y)`
 - **Disyunción** `O` / `;` en reglas
 - **Aritmética completa**: `+`, `-`, `*`, `/`, `%`, `^`, `MOD`
-- **Comparadores**: `MAYOR`, `MENOR`, `IGUAL`, `DIFERENTE`, `ES`
+- **Comparadores**: `MAYOR (>)`, `MENOR (<)`, `MAYOR IGUAL (>=)`, `MENOR IGUAL (<=)`, `IGUAL (==)`, `DIFERENTE (!=)`, `ES`
+
 
 ### 🔗 Integración con Variables Imperativas
 
