@@ -12,6 +12,7 @@
 build/
 Build/
 dist/
+nico-ide/build/
 Nico.AppDir/
 
 # Archivos de configuración de IDEs
@@ -65,3 +66,20 @@ nico-ide.ico
 package.json
 build_appimage.sh
 install_appimage.sh
+
+# AppImage - directorios de trabajo
+AppDir-aarch64/
+AppDir-x86_64/
+squashfs-root/
+appimagetool-*.AppImage
+
+# Paquetes generados (no van al repo)
+Nico-2.1.0-linux-x86_64/
+Nico-2.1.0-rpi-aarch64/
+*.AppImage
+*.zip
+
+# Archivos temporales de test
+mi_test.nico
+test_aliases.nico
+compile_errors.txt

@@ -33,8 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
       ventanaSalidaFlotante(nullptr), dialogoBusqueda(nullptr),
       tipoArchivoActual("ninguno"),
       accionEjecutar(nullptr), accionDetener(nullptr), accionLimpiarSalida(nullptr),
-      ventanaREPL(nullptr)
-
+      ventanaREPL(nullptr), replPanel(nullptr)
 {
     setWindowTitle("Nico IDE v2.1.0");
     resize(1024, 700);
@@ -118,6 +117,16 @@ void MainWindow::abrirArchivoDesdeArgumentos(const QString &rutaArchivo)
 
 MainWindow::~MainWindow()
 {
+    // Asegurarse de que el proceso principal esté terminado
+    if (runner && runner->state() != QProcess::NotRunning) {
+        runner->kill();
+        runner->waitForFinished(1000);
+    }
+    
+    // Detener el REPL si está abierto
+    if (replPanel) {
+        replPanel->detener();
+    }
 }
 
 void MainWindow::crearMenus()
@@ -520,6 +529,10 @@ void MainWindow::onDetener()
 {
     if (runner->state() == QProcess::Running) {
         runner->terminate();
+        if (!runner->waitForFinished(3000)) {
+            runner->kill();
+            runner->waitForFinished(1000);
+        }
         output->getOutput()->appendPlainText("\n>>> Programa detenido por el usuario.");
         statusBar()->showMessage("Detenido");
     }
@@ -563,9 +576,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
             return;
         }
         runner->terminate();
-        runner->waitForFinished(1000);
+        if (!runner->waitForFinished(3000)) {
+            runner->kill();
+            runner->waitForFinished(1000);
+        }
     }
-
+    
+    // Detener el REPL si está abierto
+    if (replPanel) {
+        replPanel->detener();
+    }
+    
     // Preguntar si hay cambios sin guardar
     if (preguntarGuardar())
     {
@@ -780,27 +801,25 @@ void MainWindow::onConsolaREPL()
     if (!ventanaREPL)
     {
         ventanaREPL = new QDialog(this);
+        ventanaREPL->setAttribute(Qt::WA_DeleteOnClose);
         ventanaREPL->setWindowTitle("Consola REPL - Nico IDE");
         ventanaREPL->resize(800, 500);
-
         ventanaREPL->setWindowFlags(
             ventanaREPL->windowFlags() |
             Qt::WindowMinMaxButtonsHint |
             Qt::WindowCloseButtonHint);
-
         QVBoxLayout *layout = new QVBoxLayout(ventanaREPL);
         layout->setContentsMargins(0, 0, 0, 0);
-
-        ReplPanel *repl = new ReplPanel(ventanaREPL);
-        layout->addWidget(repl);
-
-        // Cuando se cierre la ventana, detener el proceso y liberar memoria
-        connect(ventanaREPL, &QDialog::finished, [this, repl](int)
+        replPanel = new ReplPanel(ventanaREPL);
+        layout->addWidget(replPanel);
+        // Cuando se cierre la ventana, limpiar referencias
+        // (el proceso se detiene en el destructor de ReplPanel)
+        connect(ventanaREPL, &QDialog::finished, [this](int)
                 {
-            repl->detener();
-            ventanaREPL = nullptr; });
+            ventanaREPL = nullptr;
+            replPanel = nullptr;
+        });
     }
-
     ventanaREPL->show();
     ventanaREPL->raise();
     ventanaREPL->activateWindow();

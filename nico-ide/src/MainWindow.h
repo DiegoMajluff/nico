@@ -114,6 +114,7 @@ private:
     QRect geometriaNormal;
 
     QDialog *ventanaREPL;
+    ReplPanel *replPanel;
 };
 
 #endif // MAINWINDOW_H

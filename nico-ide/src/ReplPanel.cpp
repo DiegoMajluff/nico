@@ -128,9 +128,14 @@ void ReplPanel::iniciar()
 
 void ReplPanel::detener()
 {
-    if (procesoNico && procesoNico->state() == QProcess::Running) {
+    if (procesoNico && procesoNico->state() != QProcess::NotRunning) {
+        // Intentar terminar graciosamente primero
         procesoNico->terminate();
-        procesoNico->waitForFinished(1000);
+        if (!procesoNico->waitForFinished(3000)) {
+            // Si no termina en 3 segundos, forzar la finalización
+            procesoNico->kill();
+            procesoNico->waitForFinished(1000);
+        }
     }
 }
 

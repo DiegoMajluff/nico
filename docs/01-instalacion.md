@@ -94,34 +94,36 @@ sudo nico-uninstall
 ```
 
 ---
+````md
+# Raspberry Pi (Raspberry Pi OS 64-bit)
 
-## Raspberry Pi (Raspberry Pi OS)
+## 1. Descargar
 
-### 1. Descargar
+Descargá el archivo:
 
-Descargá:
-
-**`Nico-2.1.0-armhf.AppImage`**
+**Nico-2.1.0-aarch64.AppImage**
 
 desde:
 
-<https://github.com/DiegoMajluff/nico/releases>
+https://github.com/DiegoMajluff/nico/releases
 
 Incluye soporte GPIO nativo.
 
-### 2. Dar permisos
+> **Nota:** Requiere Raspberry Pi OS de 64 bits. Para verificar tu arquitectura ejecutá `uname -m`. Si responde `aarch64`, estás en 64 bits. Si necesitás una versión de 32 bits, compilá desde el código fuente siguiendo la sección **"Opción B"**.
+
+## 2. Dar permisos
 
 ```bash
-chmod +x Nico-2.1.0-armhf.AppImage
-```
+chmod +x Nico-2.1.0-aarch64.AppImage
+````
 
-### 3. Instalar
+## 3. Instalar
 
 ```bash
-sudo ./install_appimage.sh Nico-2.1.0-armhf.AppImage
+sudo ./install_appimage.sh Nico-2.1.0-aarch64.AppImage
 ```
 
-### 4. Permisos de GPIO
+## 4. Permisos de GPIO
 
 Para controlar los pines sin usar `sudo` en cada ejecución:
 
@@ -129,21 +131,20 @@ Para controlar los pines sin usar `sudo` en cada ejecución:
 sudo usermod -a -G gpio $USER
 ```
 
-> Reiniciá la sesión o la Raspberry Pi para que el cambio tenga efecto.
+Reiniciá la sesión o la Raspberry Pi para que el cambio tenga efecto.
 
-### 5. Usar
+## 5. Usar
 
 ```bash
 nico ejemplos/gpio/TestRaspiPiLed.nico
 nico-ide
 ```
 
-### 6. Desinstalar
+## 6. Desinstalar
 
 ```bash
 sudo nico-uninstall
 ```
-
 ---
 
 # Opción B: Compilación desde fuentes (Para desarrolladores)
