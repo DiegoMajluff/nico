@@ -14,6 +14,13 @@ Build/
 dist/
 nico-ide/build/
 Nico.AppDir/
+Nico-*/
+Nico-2.1.0-*/
+Nico-v2.1.0-*/
+dist/
+dist-linux/
+installer/
+nico-ide/build/
 
 # Archivos de configuración de IDEs
 .vscode/
