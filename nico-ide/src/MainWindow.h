@@ -106,6 +106,8 @@ private:
 
     QDialog *ventanaSalidaFlotante;
     FindDialog *dialogoBusqueda;
+    QString bufferStderr;
+    QString bufferStdout;
 
     QAction *accionEjecutar;
     QAction *accionDetener;

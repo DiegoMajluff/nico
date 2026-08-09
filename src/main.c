@@ -232,18 +232,15 @@ void ejecutar_archivo(const char *ruta)
 #ifndef _WIN32
     obtener_terminal_original();
 #endif
-
-    FILE *archivo = fopen(ruta, "r");
+    FILE *archivo = fopen(ruta, "rb");
     if (!archivo)
     {
         fprintf(stderr, "Error: No se pudo abrir el archivo '%s'\n", ruta);
         return;
     }
-
     fseek(archivo, 0, SEEK_END);
     long tamano = ftell(archivo);
     fseek(archivo, 0, SEEK_SET);
-
     char *codigo = malloc(tamano + 1);
     if (!codigo)
     {
@@ -251,9 +248,8 @@ void ejecutar_archivo(const char *ruta)
         fclose(archivo);
         return;
     }
-
-    fread(codigo, 1, tamano, archivo);
-    codigo[tamano] = '\0';
+    size_t leidos = fread(codigo, 1, tamano, archivo);
+    codigo[leidos] = '\0';
     fclose(archivo);
 
     Lexer *lexer = lexer_crear(codigo);
@@ -419,12 +415,11 @@ void repl(void)
             }
 
             // 1. Intentar abrir la ruta tal cual la escribió el usuario
-            FILE *archivo = fopen(ruta, "r");
+            FILE *archivo = fopen(ruta, "rb");
 
             // 2. Si no existe, buscar dinámicamente en la carpeta de ejemplos
             if (!archivo)
             {
-                // Si el usuario escribió "ejemplos/..." o "ejemplos\...", lo quitamos para buscar dentro de la carpeta ejemplos
                 char *ruta_limpia = ruta;
                 if (strncmp(ruta, "ejemplos/", 9) == 0)
                     ruta_limpia = ruta + 9;
@@ -434,7 +429,7 @@ void repl(void)
                 char *ruta_en_ejemplos = buscar_en_ejemplos(ruta_limpia);
                 if (ruta_en_ejemplos)
                 {
-                    archivo = fopen(ruta_en_ejemplos, "r");
+                    archivo = fopen(ruta_en_ejemplos, "rb");
                     if (archivo)
                     {
                         printf("> Archivo encontrado automáticamente en carpeta de ejemplos.\n");
@@ -462,8 +457,8 @@ void repl(void)
                 continue;
             }
 
-            fread(programa_cargado, 1, tamano, archivo);
-            programa_cargado[tamano] = '\0';
+            size_t leidos = fread(programa_cargado, 1, tamano, archivo); 
+            programa_cargado[leidos] = '\0';
             fclose(archivo);
             archivo_cargado = 1;
 
@@ -749,12 +744,17 @@ int main(int argc, char *argv[])
     }
 
     // Modo archivo: ./nico archivo.nico
-    if (argc == 2)
+    else if (argc == 2)
     {
         char *ext = strrchr(argv[1], '.');
         if (!ext || strcmp(ext, ".nico") != 0)
         {
-            fprintf(stderr, "Error: El archivo debe tener extensión .nico\n");
+            fprintf(stderr, "Error: El archivo debe tener extensión .nico\n\n");
+            printf("Uso: nico [opciones] [archivo.nico]\n");
+            printf("Opciones:\n");
+            printf("  -e <expr>    Evaluar expresión y salir\n");
+            printf("  -a, --ayuda  Mostrar esta ayuda\n");
+            printf("Sin opciones:  Iniciar REPL interactivo\n");
             return 1;
         }
         ejecutar_archivo(argv[1]);
@@ -762,13 +762,13 @@ int main(int argc, char *argv[])
     }
 
     // Modo REPL: ./nico
-    if (argc == 1)
+    else if (argc == 1)
     {
         repl();
         return 0;
     }
 
     fprintf(stderr, "Uso: nico [opciones] [archivo.nico]\n");
-    fprintf(stderr, "Escribí 'nico -h' para más información.\n");
+    fprintf(stderr, "Escribí 'nico -a' para más información.\n");
     return 1;
 }

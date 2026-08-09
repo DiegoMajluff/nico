@@ -27,6 +27,7 @@ public:
     QLineEdit* getInput() { return input; }
     
     void appendPlainText(const QString &text);
+    void scrollAlFinal();
     void clear();
 
 private:

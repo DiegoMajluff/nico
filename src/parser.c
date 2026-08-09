@@ -65,6 +65,7 @@ static bool parser_esperar(Parser* parser, TipoToken tipo) {
         parser_avanzar(parser);
         return true;
     }
+
     char msg[256];
     snprintf(msg, sizeof(msg), "Se esperaba %s", lexer_nombre_token(tipo));
     parser_set_error(parser, msg);
@@ -4203,7 +4204,7 @@ static NodoAST* parsear_sentencia(Parser* parser) {
         free(resultado);
         return nodo;
     }
-
+    parser_set_error(parser, "Sentencia o comando no reconocido por el parser");
     return NULL;
 }
 
@@ -4232,6 +4233,9 @@ static NodoAST *parsear_bloque(Parser *parser)
         }
         else
         {
+            if (parser->hay_error) {
+                break; 
+            }
             break;
         }
     }

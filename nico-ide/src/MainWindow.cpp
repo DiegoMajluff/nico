@@ -24,6 +24,7 @@ Nico IDE v2.1.0 - Entorno de Desarrollo Integrado
 #include <QVBoxLayout>
 #include <QSettings>
 #include <QCloseEvent>
+#include <QFontDatabase>
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
@@ -214,7 +215,6 @@ void MainWindow::actualizarFuente()
     QFont font("Monospace", tamañoFuente);
     font.setStyleHint(QFont::TypeWriter);
     editor->setFont(font);
-    
     output->getOutput()->setFont(font);
     output->getInput()->setFont(font);
 }
@@ -303,11 +303,14 @@ void MainWindow::onNuevo()
 
 void MainWindow::onAbrir()
 {
+
     if (!preguntarGuardar()) return;
 
     QString fileName = QFileDialog::getOpenFileName(
         this, "Abrir archivo", "",
-        "*.nico;;*.txt;;*.*"
+        "*.nico;;*.txt;;*.*",
+        nullptr,
+        QFileDialog::Options(0x10)
     );
 
     if (!fileName.isEmpty()) {
@@ -340,28 +343,28 @@ void MainWindow::onAbrir()
 
 void MainWindow::onCerrar()
 {
+    // Si no hay ningún archivo cargado ni cambios sin guardar,
+    // "Cerrar" cierra el IDE completo (patrón tipo VS Code)
+    if (archivoActual.isEmpty() && !archivoModificado)
+    {
+        close(); // Pasa por closeEvent(): detiene procesos y guarda configuración
+        return;
+    }
+
     if (!preguntarGuardar())
         return;
 
-    // Limpiar completamente el estado
+    // Cerrar solo el documento
     editor->clear();
-    editor->document()->setModified(false); // Resetear el flag de modificación del documento
-
+    editor->document()->setModified(false);
     archivoActual.clear();
     archivoModificado = false;
     tipoArchivoActual = "ninguno";
-
-    // Desactivar resaltado de sintaxis
     editor->setResaltadoActivo(false);
-
-    // Actualizar interfaz
     actualizarTitulo();
     actualizarEstadoMenus();
-
-    // Limpiar el panel de salida también
     output->clear();
-
-    statusBar()->showMessage("Archivo cerrado", 3000); // Mensaje temporal (3 segundos)
+    statusBar()->showMessage("Archivo cerrado", 3000);
 }
 
 void MainWindow::onGuardar()
@@ -411,7 +414,10 @@ void MainWindow::onGuardarComo()
 {
     QString fileName = QFileDialog::getSaveFileName(
         this, "Guardar archivo", "",
-        "*.nico;;*.txt;;*.*");
+        ".nico;;.txt;;.",
+        nullptr,
+        QFileDialog::Options(0x10) 
+    );
 
     if (fileName.isEmpty())
         return;
@@ -463,6 +469,7 @@ QString MainWindow::buscarInterprete(const QString &dirArchivo)
 #ifdef Q_OS_WIN
     // En Windows, el ejecutable se llama nico.exe
     candidatas 
+        << QCoreApplication::applicationDirPath() + "/nico.exe"
         << dirArchivo + "/nico.exe"
         << dirArchivo + "/../../nico.exe"
         << dirArchivo + "/../../../nico.exe"
@@ -516,6 +523,8 @@ void MainWindow::onEjecutar()
         return;
     }
 
+    bufferStderr.clear();
+    bufferStdout.clear();
     output->clear();
     ansiRenderer->limpiarPantalla();
     QFileInfo fi(archivoActual);
@@ -776,11 +785,31 @@ void MainWindow::onVentanaSalidaFlotante()
         ventanaSalidaFlotante->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
         ventanaSalidaFlotante->setStyleSheet("QDialog { border: 1px solid #444; background-color: rgb(20, 20, 20); }");
         QVBoxLayout *layout = new QVBoxLayout(ventanaSalidaFlotante);
-        
+
+        QMenuBar *menuBar = new QMenuBar(ventanaSalidaFlotante);
+        QMenu *menuPanel = menuBar->addMenu("&Acciones");
+
+        QAction *accionEjecutarPanel = menuPanel->addAction("Ejecutar (F5)");
+        accionEjecutarPanel->setShortcut(QKeySequence(Qt::Key_F5));
+
+        QAction *accionCerrarPanel = menuPanel->addAction("&Cerrar");
+        accionCerrarPanel->setShortcut(QKeySequence(Qt::Key_Escape));
+
+        connect(accionEjecutarPanel, &QAction::triggered, this, [this]() {
+            if (runner->state() == QProcess::NotRunning)
+                onEjecutar();
+            else
+                statusBar()->showMessage("Ya hay un programa en ejecución", 3000);
+        });
+        connect(accionCerrarPanel, &QAction::triggered,
+                ventanaSalidaFlotante, &QDialog::close);
+
+        layout->setMenuBar(menuBar);   // coloca el menú arriba del output
+ 
         // setParent() automáticamente remueve el widget del splitter anterior
         output->setParent(ventanaSalidaFlotante);
         layout->addWidget(output);
-        
+
         // Cuando se cierre la ventana flotante, lo devolvemos al splitter
         connect(ventanaSalidaFlotante, &QDialog::finished, [this](int) {
             output->setParent(splitter);
@@ -828,11 +857,23 @@ void MainWindow::onConsolaREPL()
 // ==========================================
 // MANEJO DEL PROCESO
 // ==========================================
-
 void MainWindow::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     Q_UNUSED(exitStatus);
+
+    // Procesar cualquier resto pendiente en el buffer de stderr
+    if (!bufferStderr.trimmed().isEmpty()) {
+        ansiRenderer->renderizar(bufferStderr + "\n");
+        bufferStderr.clear();
+    }
+
+    if (!bufferStdout.isEmpty()) {
+        ansiRenderer->renderizar(bufferStdout);
+        bufferStdout.clear();
+    }
+
     output->getOutput()->appendPlainText("\n// Fin (" + QString::number(exitCode) + ")");
+    output->scrollAlFinal();
     statusBar()->showMessage("Listo");
 }
 
@@ -852,15 +893,34 @@ void MainWindow::onProcessError(QProcess::ProcessError error)
 void MainWindow::onReadyReadStandardOutput()
 {
     QByteArray data = runner->readAllStandardOutput();
-    // Pasar el texto crudo al renderer ANSI en lugar de appendPlainText directo
-    ansiRenderer->renderizar(QString::fromUtf8(data));
+    bufferStdout += QString::fromUtf8(data);
+
+    // Procesar líneas completas
+    while (bufferStdout.contains('\n')) {
+        int idx = bufferStdout.indexOf('\n');
+        QString linea = bufferStdout.left(idx);
+        bufferStdout.remove(0, idx + 1);
+        ansiRenderer->renderizar(linea + "\n");
+        output->scrollAlFinal();
+    }
 }
 
 void MainWindow::onReadyReadStandardError()
 {
     QByteArray data = runner->readAllStandardError();
-    QString errorText = QString::fromUtf8(data).trimmed();
-    if (!errorText.isEmpty()) {
-        ansiRenderer->renderizar(errorText + "\n");
+    bufferStderr += QString::fromUtf8(data);
+
+    // Procesar solo líneas completas (terminadas en \n)
+    while (bufferStderr.contains('\n')) {
+        int idx = bufferStderr.indexOf('\n');
+        QString linea = bufferStderr.left(idx);
+        bufferStderr.remove(0, idx + 1);
+
+        // Ignorar líneas vacías
+        if (linea.trimmed().isEmpty())
+            continue;
+
+        ansiRenderer->renderizar(linea + "\n");
+        output->scrollAlFinal();
     }
 }

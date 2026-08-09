@@ -1,0 +1,66 @@
+PROGRAMA neurosimbolico
+
+// ========== RED NEURONAL (capa subsimbólica) ==========
+// Perceptrón con sigmoide: decide si un especimen es del género Homo
+// según rasgos numéricos: x1 = capacidad craneal, x2 = bipedismo (0..1)
+FUNCION DECIMAL perceptron($x1, $x2)
+    RETORNAR SIGMOIDE(4 * $x1 + 4 * $x2 - 6)
+FIN FUNCION
+
+BLOQUE PRINCIPAL
+    LIMPIARLOGICA
+    ESCRIBIR("") SALTO
+    ESCRIBIR("=== PARTE 1: PERCEPCION (RED NEURONAL) ===") SALTO
+
+    // Especimen A: tipo habilis (cráneo grande, bípedo)
+    // Especimen B: tipo chimpancé (cráneo chico, no bípedo pleno)
+    VARIABLE DECIMAL $scoreA 
+    ASIGNAR EN $scoreA = perceptron(0.8, 0.9)
+    VARIABLE DECIMAL $scoreB 
+    ASIGNAR EN $scoreB = perceptron(0.3, 0.4)
+
+    ESCRIBIR("Score especimen A: ")
+    ESCRIBIR("$scoreA", DECIMALES(3)) SALTO
+    ESCRIBIR("Score especimen B: ")
+    ESCRIBIR("$scoreB", DECIMALES(3)) SALTO
+
+    // ========== PUENTE: de número a símbolo ==========
+    SI ($scoreA MAYOR 0.5) ENTONCES
+        AGREGARHECHO("genero_homo(homo_habilis)")
+        ESCRIBIR("La red clasifica A como genero Homo") SALTO
+    SINO
+        ESCRIBIR("La red NO clasifica A como genero Homo") SALTO
+    FIN SI
+
+    SI ($scoreB MAYOR 0.5) ENTONCES
+        AGREGARHECHO("genero_homo(pan_troglodytes)")
+        ESCRIBIR("La red clasifica B como genero Homo") SALTO
+    SINO
+        AGREGARHECHO("linea_pan(pan_troglodytes)")
+        ESCRIBIR("La red clasifica B como linea Pan") SALTO
+    FIN SI
+
+    ESCRIBIR("") SALTO
+    ESCRIBIR("=== PARTE 2: RAZONAMIENTO (MOTOR LOGICO) ===") SALTO
+
+    // Base simbólica de evolución
+    AGREGARHECHO("ancestro_probable(homo_habilis, homo_erectus)")
+    AGREGARHECHO("ancestro_probable(homo_erectus, homo_sapiens)")
+    AGREGARHECHO("ancestro_probable(chlca, pan_troglodytes)")
+
+    AGREGARREGLA("ancestro_de(X, Y) SI ancestro_probable(X, Y)")
+    AGREGARREGLA("ancestro_de(X, Z) SI ancestro_probable(X, Y), ancestro_de(Y, Z)")
+
+    // Reglas que combinan lo que "vio" la red con la genealogía
+    AGREGARREGLA("ancestro_humano(X) SI genero_homo(X), ancestro_de(X, homo_sapiens)")
+    AGREGARREGLA("pariente_lejano(X) SI linea_pan(X), ancestro_de(chlca, X)")
+
+    ESCRIBIR("Ancestros humanos (red + logica):") SALTO
+    CONSULTAR("ancestro_humano(X)")
+    ESCRIBIR("") SALTO
+    ESCRIBIR("Parientes lejanos (red + logica):") SALTO
+    CONSULTAR("pariente_lejano(X)")
+    ESCRIBIR("") SALTO
+    LIMPIARLOGICA
+FIN PRINCIPAL
+FINAL

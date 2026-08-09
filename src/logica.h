@@ -18,11 +18,11 @@ Nico v2.1.0 - Motor Lógico (estilo Prolog)
 #include <stdlib.h>
 
 #define MAX_ARGS 16
-#define MAX_BINDINGS 64
+#define MAX_BINDINGS 48
 #define MAX_HECHOS 256
 #define MAX_REGLAS 64
 #define MAX_CONDICIONES 16
-#define MAX_SOLUCIONES 64
+#define MAX_SOLUCIONES 16
 
 // ============================================================
 // BINDINGS (sustituciones de variables)

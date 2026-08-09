@@ -9,6 +9,8 @@ Nico IDE v2.1.0 - Entorno de Desarrollo Integrado
                estilos personalizados para el campo de entrada.
 */
 #include "OutputPanel.h"
+#include <QScrollBar>
+#include <QTextCursor>
 
 OutputPanel::OutputPanel(QWidget *parent) : QWidget(parent)
 {
@@ -20,7 +22,7 @@ OutputPanel::OutputPanel(QWidget *parent) : QWidget(parent)
     output = new QPlainTextEdit(this);
     output->setReadOnly(true);
     output->setFrameShape(QFrame::NoFrame);
-    
+
     QFont font("Monospace", 11);
     font.setStyleHint(QFont::TypeWriter);
     output->setFont(font);
@@ -50,6 +52,19 @@ OutputPanel::OutputPanel(QWidget *parent) : QWidget(parent)
     layout->addWidget(output, 1);
     layout->addWidget(input, 0);
     setStyleSheet("OutputPanel { border: none; background-color: rgb(20, 20, 20); }");
+}
+
+// ============================================================
+// Auto-scroll al final
+// ============================================================
+void OutputPanel::scrollAlFinal()
+{
+    // Mover el cursor al final y forzar que la vista lo siga
+    QTextCursor cursor = output->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    output->setTextCursor(cursor);
+    // Refuerzo: scrollbar vertical al máximo
+    output->verticalScrollBar()->setValue(output->verticalScrollBar()->maximum());
 }
 
 void OutputPanel::appendPlainText(const QString &text)

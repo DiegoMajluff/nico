@@ -1,37 +1,38 @@
 ================================================================================
-                    INSTALACIÓN DE NICO v2.1.0 PARA RASPBERRY PI
+                    INSTALACIÓN DE NICO v2.1.0 PARA LINUX
 ================================================================================
 
-Este paquete contiene el intérprete y IDE de Nico para Raspberry Pi OS de
-64 bits (aarch64).
+Este paquete contiene el intérprete y IDE de Nico para distribuciones Linux
+de 64 bits (x86_64).
 
 CONTENIDO DEL PAQUETE:
-  - Nico-2.1.0-aarch64.AppImage   Aplicación de Nico
+  - Nico-2.1.0-x86_64.AppImage    Aplicación de Nico
   - install_appimage.sh           Instalador del sistema
   - LEEME.txt                     Este archivo
 
 REQUISITOS:
-  - Raspberry Pi OS de 64 bits
+  - Distribución Linux de 64 bits (Ubuntu, Debian, Fedora, Arch, etc.)
   - Permisos de administrador (sudo)
 
 INSTRUCCIONES DE INSTALACIÓN:
 
-1. Extraiga este archivo ZIP (si aún no lo ha hecho)
+1. Extraé este archivo compactado (si aún no lo has hecho)
 
-2. Abra una terminal en la carpeta donde extrajo los archivos
+2. Abrí una terminal en la carpeta donde extrajiste los archivos
 
-3. Dé permisos de ejecución al AppImage:
+3. Dale permisos de ejecución al AppImage:
    
-   chmod +x Nico-2.1.0-aarch64.AppImage
+   chmod +x Nico-2.1.0-x86_64.AppImage
 
-4. Ejecute el instalador con permisos de administrador:
+4. Ejecutá el instalador con permisos de administrador:
    
-   sudo ./install_appimage.sh Nico-2.1.0-aarch64.AppImage
+   sudo ./install_appimage.sh Nico-2.1.0-x86_64.AppImage
 
 5. El instalador creará:
    - Los comandos "nico" y "nico-ide" disponibles en todo el sistema
    - Accesos directos en el menú de aplicaciones
-   - Una carpeta en su home: ~/nico-v2.1.0/ con ejemplos y documentación
+   - Una carpeta en su home: ~/nico-v2.1.0/ con ejemplos, documentación
+     y código fuente
 
 USO:
 
@@ -44,22 +45,14 @@ Ejecutar un programa:
 Abrir el IDE gráfico:
   nico-ide
 
-PERMISOS DE GPIO (OPCIONAL):
-
-Si va a usar los pines GPIO sin sudo, ejecute:
-
-  sudo usermod -a -G gpio $USER
-
-Luego cierre sesión y vuelva a entrar, o reinicie la Raspberry Pi.
-
 DESINSTALACIÓN:
 
 Para desinstalar Nico del sistema:
 
   sudo nico-uninstall
 
-Nota: Esto no elimina la carpeta ~/nico-v2.1.0/ con ejemplos y documentación.
-Si desea eliminarla también, ejecute:
+Nota: Esto no elimina la carpeta ~/nico-v2.1.0/ con ejemplos, documentación
+y código fuente. Si deseas eliminarla también, ejecutá:
 
   rm -rf ~/nico-v2.1.0/
 
@@ -67,7 +60,8 @@ MÁS INFORMACIÓN:
 
   - Documentación completa: ~/nico-v2.1.0/docs/
   - Ejemplos de código: ~/nico-v2.1.0/ejemplos/
-  - Repositorio del proyecto: https://github.com/DiegoMajluff/nico
+  - Código fuente: ~/nico-v2.1.0/src/
+  - Repositorio del proyecto: https://github.com/DiegoMajluff/nico/releases/tag/v2.1.0
 
 ================================================================================
                               ¡Disfrutá programando en Nico!

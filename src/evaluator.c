@@ -7857,7 +7857,6 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
         if (ctx->logica)
         {
             bc_limpiar(ctx->logica);
-            printf("> Base de conocimiento lógica limpiada.\n");
         }
         return valor_crear_vacio();
     }

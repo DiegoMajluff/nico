@@ -1809,10 +1809,7 @@ static void renombrar_variables_en_expresion(const char *expr, int sufijo, char 
             if (strcmp(var_name, "MOD") == 0 ||
                 strcmp(var_name, "ES") == 0 ||
                 strcmp(var_name, "SI") == 0 ||
-                strcmp(var_name, "IGUAL") == 0 ||
-                strcmp(var_name, "Y") == 0 ||
-                strcmp(var_name, "O") == 0 ||
-                strcmp(var_name, "NO") == 0)
+                strcmp(var_name, "IGUAL") == 0)
             {
                 size_t current_len = strlen(out);
                 if (current_len + strlen(var_name) < out_size)
@@ -2315,13 +2312,21 @@ static int resolver(BaseConocimiento *bc, const char *predicado,
             }
             for (int j = 0; j < r->num_cuerpo; j++)
             {
-                cuerpo_renombrado[j] = r->cuerpo[j];
+                // Copia manual campo por campo (evita problemas de stack overflow)
+                strncpy(cuerpo_renombrado[j].predicado, r->cuerpo[j].predicado, 63);
+                cuerpo_renombrado[j].predicado[63] = '\0';
+                cuerpo_renombrado[j].num_args = r->cuerpo[j].num_args;
+                cuerpo_renombrado[j].negacion = r->cuerpo[j].negacion;
+                cuerpo_renombrado[j].es_aritmetica = r->cuerpo[j].es_aritmetica;
+                cuerpo_renombrado[j].es_corte = r->cuerpo[j].es_corte;
+                strncpy(cuerpo_renombrado[j].operador, r->cuerpo[j].operador, 15);
+                cuerpo_renombrado[j].operador[15] = '\0';
+    
                 for (int k = 0; k < r->cuerpo[j].num_args; k++)
                 {
-                    renombrar_variables_en_expresion(r->cuerpo[j].args[k], sufijo, cuerpo_renombrado[j].args[k], 64);                    
+                    renombrar_variables_en_expresion(r->cuerpo[j].args[k], sufijo, cuerpo_renombrado[j].args[k], 64);
                 }
             }
-
             Bindings temp = *bindings_actual;
             bool unifica = true;
             for (int j = 0; j < num_args; j++)
@@ -2334,7 +2339,7 @@ static int resolver(BaseConocimiento *bc, const char *predicado,
             }
             if (!unifica)
                 continue;
-
+            
             Bindings cuerpo_bindings[MAX_SOLUCIONES];
             int num_cuerpo_sols = 1;
             cuerpo_bindings[0] = temp;
@@ -2355,8 +2360,6 @@ static int resolver(BaseConocimiento *bc, const char *predicado,
                         if (corte_activo)
                             *corte_activo = true; // Efecto Global
 
-                        // ¡EFECTO LOCAL DEL CORTE!
-                        // Congelamos el backtracking. Solo mantenemos esta solución y descartamos el resto.
                         break;
                     }
                     else if (cond->es_aritmetica)
@@ -2381,8 +2384,8 @@ static int resolver(BaseConocimiento *bc, const char *predicado,
                     else
                     {
                         // Llamada recursiva normal
-                        // Nota: El corte de una regla anidada es local a esa regla, no se propaga hacia arriba.
                         bool corte_rec = false;
+
                         int sols = resolver(bc, cond->predicado, cond->args, cond->num_args,
                                             &cuerpo_bindings[s], nuevas_sols + num_nuevas,
                                             MAX_SOLUCIONES - num_nuevas, contexto, &corte_rec);

@@ -1,0 +1,39 @@
+PROGRAMA evolucion_completa
+
+BLOQUE PRINCIPAL
+    LIMPIARLOGICA
+    ESCRIBIR("") SALTO
+    AGREGARHECHO("ancestro_probable(chlca, sahelanthropus_tchadensis)")
+    AGREGARHECHO("ancestro_probable(chlca, pan_troglodytes)")
+    AGREGARHECHO("ancestro_probable(sahelanthropus_tchadensis, ardipithecus_ramidus)")
+    AGREGARHECHO("ancestro_probable(ardipithecus_ramidus, australopithecus_afarensis)")
+    AGREGARHECHO("ancestro_probable(australopithecus_afarensis, homo_habilis)")
+    AGREGARHECHO("ancestro_probable(homo_habilis, homo_erectus)")
+    AGREGARHECHO("ancestro_probable(homo_erectus, homo_heidelbergensis)")
+    AGREGARHECHO("ancestro_probable(homo_heidelbergensis, homo_sapiens)")
+    
+    AGREGARREGLA("ancestro_de(X, Y) SI ancestro_probable(X, Y)")
+    AGREGARREGLA("ancestro_de(X, Z) SI ancestro_probable(X, Y), ancestro_de(Y, Z)")
+    
+    //Aquí se agrega la regla que define que X es cuando es ancestro_probable de sahelanthropus y pan_troglodytes
+    AGREGARREGLA("ancestro_comun(X) SI ancestro_probable(X, sahelanthropus_tchadensis), ancestro_probable(X, pan_troglodytes)")
+    
+    ESCRIBIR("¿Es ancestro CHLCA de Pan_troglodytes?") SALTO
+    CONSULTAR("ancestro_de(chlca, pan_troglodytes)")
+    ESCRIBIR("") SALTO
+
+    ESCRIBIR("¿Es ancestro Homo_Erectus de Homo_Sapiens?") SALTO
+    CONSULTAR("ancestro_de(homo_erectus, homo_sapiens)")
+    ESCRIBIR("") SALTO
+
+    ESCRIBIR("¿De quiénes es ancestro CHLCA?") SALTO
+    CONSULTAR("ancestro_de(chlca, X)")
+    ESCRIBIR("") SALTO
+
+    ESCRIBIR("¿Quién es el ancestro en común de Sahelanthropus_tchadensis y Pan_troglodytes?") SALTO
+    CONSULTAR("ancestro_comun(X)")
+    ESCRIBIR("") SALTO
+
+    LIMPIARLOGICA
+FIN PRINCIPAL
+FINAL
