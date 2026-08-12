@@ -72,7 +72,7 @@ nico-ide.ico
 # Scripts redundantes y archivos sueltos
 package.json
 build_appimage.sh
-install_appimage.sh
+# install_appimage.sh  # Recuperado: necesario para empaquetar Linux y RPi
 
 # AppImage - directorios de trabajo
 AppDir-aarch64/

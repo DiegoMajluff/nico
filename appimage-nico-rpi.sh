@@ -121,6 +121,9 @@ export QT_PLUGIN_PATH="$HERE/usr/plugins${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
 export QT_QPA_PLATFORM_PLUGIN_PATH="$HERE/usr/plugins/platforms${QT_QPA_PLATFORM_PLUGIN_PATH:+:$QT_QPA_PLATFORM_PLUGIN_PATH}"
 export XDG_DATA_DIRS="$HERE/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 
+# Fix: desactivar el plugin de tema GTK3 (crashea en sesiones Wayland)
+export QT_QPA_PLATFORMTHEME=""
+
 # Variables para evitar cursor gigante en Raspberry Pi
 export QT_AUTO_SCREEN_SCALE_FACTOR="${QT_AUTO_SCREEN_SCALE_FACTOR:-0}"
 export QT_SCALE_FACTOR="${QT_SCALE_FACTOR:-1}"
