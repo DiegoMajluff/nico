@@ -142,6 +142,13 @@ case "$1" in
         ;;
 esac
 
+# Si el primer argumento es un archivo .nico → ejecutar con el intérprete
+if [ $# -gt 0 ] && [ "${1##*.}" = "nico" ]; then
+    if [ -x "$HERE/usr/bin/nico" ]; then
+        exec "$HERE/usr/bin/nico" "$@"
+    fi
+fi
+
 if [ -x "$HERE/usr/bin/nico-ide" ]; then
     exec "$HERE/usr/bin/nico-ide" "$@"
 elif [ -x "$HERE/usr/bin/nico" ]; then
