@@ -3,6 +3,19 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [2.1.0] - 2026-08-14 (Parches de UX, Señales y Web)
+
+### Fixes
+- **Literales octales:** El evaluador ahora detecta correctamente la base 8 para números que inician con `0` (ej: `0101` = 65).
+- **Endpoint `/render`:** Usa la ruta absoluta del binario y filtra los mensajes de estado del intérprete ("Corriendo programa...", "Programa finalizado") para devolver HTML limpio.
+- **Wayland:** Se silencian los warnings de Qt en sesiones Wayland.
+
+### Mejoras
+- **Ctrl+C inmediato (Terminal):** El intérprete ahora responde a Ctrl+C en menos de 10ms, incluso dentro de bucles `MIENTRAS` o durante `ESPERAR()`. El servidor web (`INICIARSERVER`) se detiene limpiamente mostrando su mensaje de despedida.
+- **Ctrl+C inteligente (IDE):** Si hay texto seleccionado, copia. Si no hay selección y hay un programa corriendo, lo detiene.
+- **Ventana flotante:** Se agregó la opción "Detener (F6)" en el menú de la consola de salida flotante.
+- **Consola del IDE:** Mejorado el espaciado visual entre el mensaje "Ejecutando..." y el output del programa.
+
 ## [2.1.0] - 2026-07-28
 
 ### ✨ Añadido
