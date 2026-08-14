@@ -19,5 +19,6 @@ typedef struct Contexto Contexto;
 void web_set_contexto(Contexto *ctx);
 void cmd_iniciarserver(Contexto *ctx, int puerto);
 void cmd_detenerserver(Contexto *ctx);
+void web_detener_si_corriendo(void);
 
 #endif

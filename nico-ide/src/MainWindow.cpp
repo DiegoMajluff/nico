@@ -25,6 +25,7 @@ Nico IDE v2.1.0 - Entorno de Desarrollo Integrado
 #include <QSettings>
 #include <QCloseEvent>
 #include <QFontDatabase>
+#include <QKeyEvent>
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
@@ -48,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(splitter);
 
     editor = new CodeEditor(this);
+    editor->installEventFilter(this);
     output = new OutputPanel(this);
 
     splitter->addWidget(editor);
@@ -529,6 +531,7 @@ void MainWindow::onEjecutar()
     ansiRenderer->limpiarPantalla();
     QFileInfo fi(archivoActual);
     output->getOutput()->appendPlainText("// Ejecutando: " + fi.fileName());
+    output->getOutput()->appendPlainText("");
     statusBar()->showMessage("Ejecutando...");
 
     runner->ejecutar(nicoPath, archivoActual);
@@ -791,16 +794,19 @@ void MainWindow::onVentanaSalidaFlotante()
 
         QAction *accionEjecutarPanel = menuPanel->addAction("Ejecutar (F5)");
         accionEjecutarPanel->setShortcut(QKeySequence(Qt::Key_F5));
-
+        QAction *accionDetenerPanel = menuPanel->addAction("Detener (F6)");
+        accionDetenerPanel->setShortcut(QKeySequence(Qt::Key_F6));
         QAction *accionCerrarPanel = menuPanel->addAction("&Cerrar");
         accionCerrarPanel->setShortcut(QKeySequence(Qt::Key_Escape));
+        connect(accionEjecutarPanel, &QAction::triggered, this, [this]()
+                {
+    if (runner->state() == QProcess::NotRunning)
+        onEjecutar();
+    else
+        statusBar()->showMessage("Ya hay un programa en ejecución", 3000); });
+        connect(accionDetenerPanel, &QAction::triggered, this, [this]()
+                { onDetener(); });
 
-        connect(accionEjecutarPanel, &QAction::triggered, this, [this]() {
-            if (runner->state() == QProcess::NotRunning)
-                onEjecutar();
-            else
-                statusBar()->showMessage("Ya hay un programa en ejecución", 3000);
-        });
         connect(accionCerrarPanel, &QAction::triggered,
                 ventanaSalidaFlotante, &QDialog::close);
 
@@ -923,4 +929,36 @@ void MainWindow::onReadyReadStandardError()
         ansiRenderer->renderizar(linea + "\n");
         output->scrollAlFinal();
     }
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == editor && event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+        // Detectar Ctrl+C
+        if (keyEvent->key() == Qt::Key_C &&
+            keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            // Si hay texto seleccionado, dejar que copie normalmente
+            if (editor->textCursor().hasSelection())
+            {
+                return false; // No interceptar, comportamiento normal
+            }
+
+            // Si hay un programa corriendo, detenerlo
+            if (runner->state() == QProcess::Running)
+            {
+                onDetener();
+                return true; // Evento manejado
+            }
+
+            // Si no hay selección ni programa corriendo,
+            // dejar el comportamiento normal (copiar línea)
+            return false;
+        }
+    }
+
+    return QMainWindow::eventFilter(obj, event);
 }

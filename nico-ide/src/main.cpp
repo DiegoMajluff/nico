@@ -18,6 +18,7 @@ Nico IDE v2.1.0 - Entorno de Desarrollo Integrado
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    qputenv("QT_LOGGING_RULES", "qt.qpa.wayland=false");
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     app.setApplicationName("Nico IDE");
     app.setApplicationVersion("2.1.0");

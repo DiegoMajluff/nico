@@ -11,6 +11,7 @@
  *                y DETECCIÓN AUTOMÁTICA DE RELACIONES (FOREIGN KEYS).
  */
 #include "evaluator.h"
+#include "signal_handler.h"
 #include "lexer.h"
 #include <string.h>
 #include <stdio.h>
@@ -562,26 +563,78 @@ static void* handle_client(void *arg) {
         fclose(check);
         char cmd[512];
 #ifdef _WIN32
-    snprintf(cmd, sizeof(cmd), "nico.exe \"%s\" 2>nul", filename);
+        char exe_path[256];
+        GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
+        snprintf(cmd, sizeof(cmd), "\"%s\" \"%s\" 2>nul", exe_path, filename);
 #else
-    snprintf(cmd, sizeof(cmd), "./nico \"%s\" 2>/dev/null", filename);
-#endif     
+        char exe_path[256];
+        ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+        if (len != -1) {
+            exe_path[len] = '\0';
+            snprintf(cmd, sizeof(cmd), "\"%s\" \"%s\" 2>/dev/null", exe_path, filename);
+        } else {
+            snprintf(cmd, sizeof(cmd), "nico \"%s\" 2>/dev/null", filename);
+        }
+#endif
         char raw[65536] = {0};
         size_t raw_len = 0;
         FILE *pipe = popen(cmd, "r");
-        if (pipe) {
+        if (pipe)
+        {
             raw_len = fread(raw, 1, sizeof(raw) - 1, pipe);
             pclose(pipe);
         }
         raw[raw_len] = '\0';
-        char clean[65536]; size_t j = 0;
-        for (size_t i = 0; i < raw_len && j < sizeof(clean)-1; i++) {
-            if (raw[i] == '\x1b' && raw[i+1] == '[') {
+
+        char filtered[65536];
+        size_t f_len = 0;
+        {
+            size_t i = 0;
+            while (i < raw_len)
+            {
+                // Encontrar el inicio y fin de la línea actual
+                size_t line_start = i;
+                while (i < raw_len && raw[i] != '\n')
+                    i++;
+                size_t line_len = i - line_start;
+
+                // Verificar si es una línea de status del intérprete
+                int skip = 0;
+                if (line_len >= 20 && strncmp(raw + line_start, "> Corriendo programa", 20) == 0)
+                {
+                    skip = 1;
+                }
+                else if (line_len >= 10 && strncmp(raw + line_start, "> Programa", 10) == 0)
+                {
+                    skip = 1;
+                }
+
+                // Si no es una línea a filtrar, copiarla al buffer filtered
+                if (!skip && f_len + line_len + 1 < sizeof(filtered))
+                {
+                    memcpy(filtered + f_len, raw + line_start, line_len);
+                    f_len += line_len;
+                    filtered[f_len++] = '\n';
+                }
+                if (i < raw_len)
+                    i++; // saltar el \n
+            }
+            filtered[f_len] = '\0';
+        }
+       
+        // Limpiar códigos ANSI sobre el texto ya filtrado
+        char clean[65536];
+        size_t j = 0;
+        for (size_t i = 0; i < f_len && j < sizeof(clean) - 1; i++)
+        {
+            if (filtered[i] == '\x1b' && filtered[i + 1] == '[')
+            {
                 i += 2;
-                while (raw[i] && raw[i] != 'm' && raw[i] != 'H' && raw[i] != 'J' && raw[i] != 'K' && raw[i] != 'l' && raw[i] != 'h') i++;
+                while (i < f_len && filtered[i] && filtered[i] != 'm' && filtered[i] != 'H' && filtered[i] != 'J' && filtered[i] != 'K' && filtered[i] != 'l' && filtered[i] != 'h')
+                    i++;
                 continue;
             }
-            clean[j++] = raw[i];
+            clean[j++] = filtered[i];
         }
         clean[j] = '\0';
         size_t clean_len = j;
@@ -636,19 +689,37 @@ void* server_loop(void *arg) {
     }
     listen_fd_global = fd;
     fprintf(stderr, "🌐 Servidor web iniciado en http://localhost:%d\n", port);
-    while (server_running) {
+
+    while (server_running)
+    {
+        // CHEQUEO INMEDIATO de interrupción antes de bloquearse
+        if (hay_interrupcion())
+        {
+            server_running = 0;
+            break;
+        }
+
         fd_set readfds;
         struct timeval timeout;
         FD_ZERO(&readfds);
         FD_SET(fd, &readfds);
         timeout.tv_sec = 0;
-        timeout.tv_usec = 100000;
+        timeout.tv_usec = 50000; // Reducido a 50ms para mayor responsividad
         int activity = select(fd + 1, &readfds, NULL, NULL, &timeout);
-        if (activity < 0) {
-            if (!server_running) break;
+
+        if (activity < 0)
+        {
+            // select() fue interrumpido por señal (EINTR)
+            if (!server_running || hay_interrupcion())
+            {
+                server_running = 0;
+                break;
+            }
             continue;
         }
+
         if (activity == 0) continue;
+        
         if (FD_ISSET(fd, &readfds)) {
             struct sockaddr_in cli_addr;
             socklen_t cli_len = sizeof(cli_addr);
@@ -661,6 +732,13 @@ void* server_loop(void *arg) {
             pthread_t tid;
             pthread_create(&tid, NULL, handle_client, arg);
             pthread_detach(tid);
+        }
+        
+        // Chequear si se solicitó interrupción (Ctrl+C)
+        if (hay_interrupcion())
+        {
+            server_running = 0;
+            break;
         }
     }
     close(fd);
@@ -705,4 +783,19 @@ void cmd_detenerserver(Contexto *ctx)
     server_running = 0;
     shutdown(listen_fd_global, SHUT_RDWR);
     close(listen_fd_global);
+}
+
+// Función pública para detener el servidor si está corriendo
+// Se llama desde el evaluador cuando se detecta interrupción (Ctrl+C)
+void web_detener_si_corriendo(void)
+{
+    if (server_running && listen_fd_global != -1)
+    {
+        server_running = 0;
+        shutdown(listen_fd_global, SHUT_RDWR);
+        close(listen_fd_global);
+        listen_fd_global = -1;
+        // Darle un momento al hilo del servidor para que imprima el mensaje
+        usleep(50000); // 50ms
+    }
 }

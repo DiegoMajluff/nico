@@ -1903,8 +1903,22 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
             const char *str = nodo->datos.literal_numero.valor_str;
             if (strchr(str, '.') == NULL && strchr(str, 'e') == NULL && strchr(str, 'E') == NULL)
             {
+                // Detectar base del número
+                int base = 10;
+                if (str[0] == '0')
+                {
+                    if (str[1] == 'x' || str[1] == 'X')
+                    {
+                        base = 16;
+                    }
+                    else if (str[1] >= '0' && str[1] <= '7')
+                    {
+                        base = 8;
+                    }
+                }
+
                 char *endptr;
-                unsigned long long ull_val = strtoull(str, &endptr, 10);
+                unsigned long long ull_val = strtoull(str, &endptr, base);
 
                 // Ignorar espacios en blanco o saltos de línea finales (crucial para evitar el fallback)
                 while (*endptr == ' ' || *endptr == '\t' || *endptr == '\n' || *endptr == '\r')
@@ -2872,6 +2886,17 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
             long long restante = microsegundos;
             while (restante > 0)
             {
+                // CHEQUEO DE INTERRUPCIÓN (Ctrl+C)
+                if (hay_interrupcion())
+                {
+                    // Detener el servidor web si está corriendo
+                    web_detener_si_corriendo();
+
+                    resetear_interrupcion();
+                    contexto_set_error(ctx, "Programa interrumpido por el usuario (Ctrl+C)");
+                    return valor_crear_vacio();
+                }
+
                 // Dormir 10ms o lo que reste
                 useconds_t dormir = (restante > 10000) ? 10000 : (useconds_t)restante;
                 usleep(dormir);
@@ -2879,6 +2904,7 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
             }
 #endif
         }
+        
         return valor_crear_vacio();
     }
 
@@ -5809,6 +5835,13 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
         {
             for (int i = val_inicio; i >= val_fin && ctx->estado_flujo == FLUJO_NORMAL; i += paso)
             {
+                if (hay_interrupcion())
+                {
+                    resetear_interrupcion();
+                    contexto_set_error(ctx, "Programa interrumpido por el usuario (Ctrl+C)");
+                    return valor_crear_vacio();
+                }
+
                 tabla_simbolos_definir(ctx->tabla_actual, var, valor_crear_entero(i), false);
                 evaluar_bloque(nodo->datos.para.bloque, ctx);
 
@@ -5839,6 +5872,13 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
     {
         while (ctx->estado_flujo == FLUJO_NORMAL)
         {
+
+            if (hay_interrupcion())
+            {
+                resetear_interrupcion();
+                contexto_set_error(ctx, "Programa interrumpido por el usuario (Ctrl+C)");
+                return valor_crear_vacio();
+            }
 
             teclado_limpiar_buffer();
 
@@ -5891,6 +5931,13 @@ Valor evaluar_nodo(NodoAST *nodo, Contexto *ctx)
     {
         do
         {
+            if (hay_interrupcion())
+            {
+                resetear_interrupcion();
+                contexto_set_error(ctx, "Programa interrumpido por el usuario (Ctrl+C)");
+                return valor_crear_vacio();
+            }
+
             evaluar_bloque(nodo->datos.realizar.bloque, ctx);
 
             if (ctx->estado_flujo == FLUJO_BREAK)
