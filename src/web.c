@@ -24,6 +24,7 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <io.h>
+    #include <direct.h>
     #define close(fd) closesocket(fd)
 #else
     #include <sys/select.h>
@@ -37,6 +38,9 @@
 #ifdef _WIN32
     #define SHUT_RDWR 2
 #endif
+
+// Directorio de trabajo original (donde se inició el servidor)
+static char cwd_original[1024] = {0};
 
 // Puntero global al contexto (se inicializa en INICIARSERVER)
 static Contexto *ctx_global = NULL;
@@ -555,25 +559,62 @@ static void* handle_client(void *arg) {
         char filename[256] = {0};
         if (file_param) sscanf(file_param + 8, "%255[^& ]", filename);
         else strcpy(filename, "ejemplos/demo.nico");
-        FILE *check = fopen(filename, "r");
+
+        // Construir ruta absoluta PRIMERO (antes de verificar si existe)
+        char absolute_filename[1024];
+        
+        // Si filename es relativo y tenemos el CWD original, construir ruta absoluta
+        if (cwd_original[0] != '\0' && filename[0] != '/' && filename[0] != '\\') {
+#ifdef _WIN32
+            // En Windows, verificar si no empieza con letra de unidad (ej: C:\)
+            if (!(filename[0] && filename[1] == ':')) {
+                snprintf(absolute_filename, sizeof(absolute_filename), "%s\\%s", cwd_original, filename);
+                // Normalizar separadores
+                for (int k = 0; absolute_filename[k]; k++) {
+                    if (absolute_filename[k] == '/') absolute_filename[k] = '\\';
+                }
+            } else {
+                strncpy(absolute_filename, filename, sizeof(absolute_filename) - 1);
+                absolute_filename[sizeof(absolute_filename) - 1] = '\0';
+            }
+#else
+            snprintf(absolute_filename, sizeof(absolute_filename), "%s/%s", cwd_original, filename);
+#endif
+        } else {
+            strncpy(absolute_filename, filename, sizeof(absolute_filename) - 1);
+            absolute_filename[sizeof(absolute_filename) - 1] = '\0';
+        }
+
+#ifdef _WIN32
+        // Normalizar a backslashes en Windows
+        for (int k = 0; absolute_filename[k]; k++) {
+            if (absolute_filename[k] == '/') {
+                absolute_filename[k] = '\\';
+            }
+        }
+#endif
+
+        // Ahora verificar si el archivo existe usando la ruta absoluta
+        FILE *check = fopen(absolute_filename, "r");
         if (!check) {
             const char *err = "HTTP/1.1 404 Not Found\r\nContent-Length: 16\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nArchivo no existe";
             send(fd, err, strlen(err), 0); close(fd); return NULL;
         }
         fclose(check);
-        char cmd[512];
+        
+        char cmd[1024];
 #ifdef _WIN32
-        char exe_path[256];
+        char exe_path[512];
         GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
-        snprintf(cmd, sizeof(cmd), "\"%s\" \"%s\" 2>nul", exe_path, filename);
+        snprintf(cmd, sizeof(cmd), "cmd /c \"\"%s\" \"%s\"\"", exe_path, absolute_filename);
 #else
-        char exe_path[256];
+        char exe_path[512];
         ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
         if (len != -1) {
             exe_path[len] = '\0';
-            snprintf(cmd, sizeof(cmd), "\"%s\" \"%s\" 2>/dev/null", exe_path, filename);
+            snprintf(cmd, sizeof(cmd), "\"%s\" \"%s\" 2>/dev/null", exe_path, absolute_filename);
         } else {
-            snprintf(cmd, sizeof(cmd), "nico \"%s\" 2>/dev/null", filename);
+            snprintf(cmd, sizeof(cmd), "nico \"%s\" 2>/dev/null", absolute_filename);
         }
 #endif
         char raw[65536] = {0};
@@ -747,9 +788,18 @@ void* server_loop(void *arg) {
     return NULL;
 }
 
-// DESPUÉS:
 void cmd_iniciarserver(Contexto *ctx, int puerto)
 {
+
+    // Guardar el directorio de trabajo original
+#ifdef _WIN32
+    GetCurrentDirectoryA(sizeof(cwd_original), cwd_original);
+#else
+    if (getcwd(cwd_original, sizeof(cwd_original)) == NULL) {
+        cwd_original[0] = '\0';
+    }
+#endif
+
     if (server_running)
     {
         printf("⚠️ El servidor ya está en ejecución.\n");

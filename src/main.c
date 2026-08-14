@@ -679,6 +679,8 @@ void repl(void)
 
 int main(int argc, char *argv[])
 {
+    // Desactivar buffering de stdout (necesario para popen)
+    setvbuf(stdout, NULL, _IONBF, 0);
 
 #ifdef _WIN32
     SetConsoleOutputCP(65001); // Forzar salida UTF-8
